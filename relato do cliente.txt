@@ -1,0 +1,71 @@
+1a Entrevista com o cliente:
+
+Nome: Lilian Porto
+Tipo de Negocios:
+Microempreendedor No ramo Gastronomico
+
+Relato: 
+Trabalha com produção de alimentos congelados. 
+
+Produtos:
+Escondidinho produção a base de mandioca.
+Empadões produção a base de farinha de trigo.
+
+Nas gramaturas de :
+250gr
+500gr
+1Kl
+
+Embalagens erméticas,que vão a freezer e microondas
+
+Principais dificuldades enfrentadas no negócio:
+
+Falta de controle de estoque, falta de previsão de produção e controle de gastos e compras
+que influencia diretamente na precificação do produto final mascarando o lucro liquido da 
+produção.
+
+Pergunta 1 : 
+Já tentou algum sofware de controle de gestoque e gastos ?
+
+Resposta:
+ -- Sim! Software de Gestão de Restaurante, achei muito complexo e caro, além da pessímo
+ atendimento e suporte pior ainda. Não me adaptei achei muito complexo e não
+ atende as necessidades e ao tamanho da minha empresa.
+
+ Pergunta 2:
+ Pode dar uma idéia sobre o necessita atualmente para alavancar e controlar sua empresa ?
+
+ Resposta:
+    Algo que eu possa controlar as entradas (compras), e que faça a previsão de quanto posso
+ produzir com o materia em estoque, e que me forneça uma lista de Produtos
+ que estão acbando e também que eu lançar a produção, as vendas e consiga enxergar o momento
+ das compres e quais os produtos eu preciso investir mais. 
+    E muito importante, que eu possa fazer uma estimativa de compras para situações de encomendas
+para pedidos não programados. 
+
+Pergunta 3:
+Você deseja que esse sofware esteja em nuvem ? Ou uma página WEB ?
+
+Resposta:
+Necessariamente não. Não trabalho com vendas on-line e não é minha intenção por enquanto,
+tenho minha carteira de clientes bem formada e meu atendimento é 90% WhatsApp. 
+
+Não entendo bem de computador, gostaria de ter o programa no meu notebook e se possível
+um backup em nuvem, que possa atualizar diariamente ou semanalmente. 
+
+Pergunta 4:
+Gostaria de ter um cadastro de clientes ? 
+
+Resposta: 
+Não é prioridade, mas seria interessante.
+
+Pergunta 6:
+Tem disponibilidade para acompanhar o processo de desenvolvimento 
+e axiliar os desenvolvedores tirando as dúvidas deles?
+
+Resposta :
+Sim ! Sem problemas.
+
+
+ 
+
