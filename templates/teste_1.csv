@@ -1,5 +1,8 @@
-Nome,Quantidade,Unidade,Validade,Categoria,Fornecedor
-farinha de trigo,10.0,kg,10/12/2026,Cereal,Atacadão
-Farinha de Mandioca,2.0,kg,10/02/2025,Cereal,Atacadão
-leite,2.0,L,12/08/2025,Latícinio,Atacadão
-Leite de coco,200.0,ml,12/12/2025,Cereal,Acaí
+Nome,Quantidade,Unidade,Valor,Validade,Categoria,Fornecedor
+farinha de trigo,10.0,kg,4.59,10/12/2026,Cereal,Atacadão
+Farinha de Mandioca,2.0,kg,9.35,10/02/2025,Cereal,Atacadão
+leite,2.0,L,5.99,12/08/2025,Latícinio,Atacadão
+Leite de coco,200.0,ml,3.99,12/12/2025,Cereal,Acaí
+Filé de Frango,2.0,kg,45.43,21/09/2025,Proteína,Açogue Dois Irmãos
+Oleo de soja,1.0,L,7.49,03/02/2026,Óleo,Acaí
+alho,150.0,g,12.35,20/10/2025,Cereal,Feira Livre

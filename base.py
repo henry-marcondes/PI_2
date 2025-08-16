@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import csv
 from datetime import datetime
+import os
 
 class InsumoGUI:
     def __init__(self, root):
@@ -27,6 +28,10 @@ class InsumoGUI:
         self.unidade_combo = ttk.Combobox(entrada, values=["kg", "g", "L", "ml", "unid"], width=10)
         self.unidade_combo.grid(row=2, column=1)
         self.unidade_combo.set("kg")
+
+        ttk.Label(entrada, text="Valor: R$").grid(row=3, column=0)
+        self.valor_entry = ttk.Entry(entrada, width=15)
+        self.valor_entry.grid(row=3, column=1)
 
         ttk.Label(entrada, text="Validade (dd/mm/aaaa):").grid(row=0, column=2)
         self.validade_entry = ttk.Entry(entrada, width=15)
@@ -68,33 +73,36 @@ class InsumoGUI:
         ttk.Button(filtros, text="Aplicar Filtro", command=self.aplicar_filtro).grid(row=0, column=4, padx=10)
 
         # Tabela
-        colunas = ("Nome", "Quantidade", "Unidade", "Validade", "Categoria", "Fornecedor")
+        colunas = ("Nome", "Quantidade", "Unidade", "Valor", "Validade", "Categoria", "Fornecedor")
         self.tree = ttk.Treeview(root, columns=colunas, show="headings", height=10)
         for col in colunas:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=100)
         self.tree.grid(row=3, column=0, padx=10, pady=10)
+        self.carregar_csv_automatico()
 
     def adicionar_insumo(self):
         nome = self.nome_entry.get().strip()
         qtd = self.qtd_entry.get().strip()
         unidade = self.unidade_combo.get()
+        valor = self.valor_entry.get().strip()
         validade = self.validade_entry.get().strip()
         categoria = self.categoria_combo.get()
         fornecedor = self.fornecedor_entry.get().strip()
 
-        if not nome or not qtd or not validade or not fornecedor:
+        if not nome or not qtd or not valor or not validade or not fornecedor:
             messagebox.showwarning("Atenção", "Preencha todos os campos obrigatórios!")
             return
 
         try:
             qtd = float(qtd)
+            valor = float(valor)
             datetime.strptime(validade, "%d/%m/%Y")
         except ValueError:
             messagebox.showerror("Erro", "Quantidade inválida ou data em formato errado!")
             return
 
-        insumo = (nome, qtd, unidade, validade, categoria, fornecedor)
+        insumo = (nome, qtd, unidade, valor, validade, categoria, fornecedor)
         self.tree.insert("", "end", values=insumo)
         self.limpar_campos()
 
@@ -113,11 +121,13 @@ class InsumoGUI:
         self.qtd_entry.delete(0, tk.END)
         self.qtd_entry.insert(0, valores[1])
         self.unidade_combo.set(valores[2])
+        self.valor_entry.delete(0, tk.END)
+        self.valor_entry.insert(0,valores[3])
         self.validade_entry.delete(0, tk.END)
-        self.validade_entry.insert(0, valores[3])
-        self.categoria_combo.set(valores[4])
+        self.validade_entry.insert(0, valores[4])
+        self.categoria_combo.set(valores[5])
         self.fornecedor_entry.delete(0, tk.END)
-        self.fornecedor_entry.insert(0, valores[5])
+        self.fornecedor_entry.insert(0, valores[6])
 
         # Remove da lista temporariamente
         self.tree.delete(selecionado)
@@ -129,6 +139,53 @@ class InsumoGUI:
             return
         self.tree.delete(selecionado)
 
+    def salvar_caminho_csv(self, caminho):
+        try:
+            pasta_templates = os.path.join(os.path.dirname(__file__),"templates")
+            os.makedirs(pasta_templates, exist_ok=True)
+            caminho_arquivo = os.path.join(pasta_templates,"ultimo_arquivo.txt")
+            with open(caminho_arquivo, "w", encoding="utf-8") as f:
+                f.write(caminho)
+        except Exception as e:
+            print("Erro ao salvar caminho do CSV:", e)
+
+    def carregar_csv_automatico(self):
+        try:
+            pasta_templates = os.path.join(os.path.dirname(__file__),"templates")
+            os.makedirs(pasta_templates, exist_ok=True)
+            caminho_arquivo = os.path.join(pasta_templates,"ultimo_arquivo.txt")
+            with open(caminho_arquivo, "r", encoding="utf-8") as f:
+                caminho = f.read().strip()
+            if caminho and caminho.endswith(".csv"):
+                self.abrir_csv_automatico(caminho)
+        except FileNotFoundError:
+            pass  # Se não existir, ignora
+
+    def abrir_csv_automatico(self, arquivo):
+        try:
+            with open(arquivo, "r", encoding="utf-8") as f:
+                leitor = csv.reader(f)
+                next(leitor) # pula cabeçalho
+                self.tree.delete(*self.tree.get_children())
+                self.insumos.clear()
+
+                for linha in leitor:
+                    if len(linha) != 7:
+                        continue
+                    nome, qtd, unidade, valor, validade, categoria, fornecedor = linha
+                    try:
+                        qtd = float(qtd) # transforma string em float
+                        valor =  float(valor)
+                    except ValueError:
+                        qtd = 0
+                        valor = 0
+                    item = (nome, qtd, unidade, valor, validade,categoria, fornecedor)
+                    self.tree.insert("","end", values=item)
+                    self.insumos.append(item)
+            print(f"CSV carregado automaticamente: {arquivo}")
+        except Exception as e:
+            print("Erro ao abrir CSV automático: {e}")
+
     def salvar_csv(self):
         arquivo = filedialog.asksaveasfilename(defaultextension=".csv",
                                                filetypes=[("CSV files", "*.csv")])
@@ -137,12 +194,13 @@ class InsumoGUI:
 
         with open(arquivo, "w", newline="", encoding="utf-8") as f:
             escritor = csv.writer(f)
-            escritor.writerow(["Nome", "Quantidade", "Unidade", "Validade", "Categoria", "Fornecedor"])
+            escritor.writerow(["Nome", "Quantidade", "Unidade", "Valor", "Validade", "Categoria", "Fornecedor"])
             for row_id in self.tree.get_children():
                 valores = self.tree.item(row_id)["values"]
                 escritor.writerow(valores)
 
         messagebox.showinfo("Sucesso", f"Dados salvos em {arquivo}")
+        self.salvar_caminho_csv(arquivo)
 
     def abrir_csv(self):
         arquivo = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -157,14 +215,14 @@ class InsumoGUI:
                 self.insumos.clear()
 
                 for linha in leitor:
-                    if len(linha) != 6:
+                    if len(linha) != 7:
                         continue  # ignora linhas com dados incompletos
-                    nome, qtd, unidade, validade, categoria, fornecedor = linha
+                    nome, qtd, unidade, valor, validade, categoria, fornecedor = linha
                     try:
                         qtd = float(qtd)
                     except ValueError:
                         qtd = 0
-                    item = (nome, qtd, unidade, validade, categoria, fornecedor)
+                    item = (nome, qtd, unidade, valor, validade, categoria, fornecedor)
                     self.tree.insert("", "end", values=item)
                     self.insumos.append(item)
 
@@ -172,7 +230,7 @@ class InsumoGUI:
 
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao abrir o arquivo:\n{e}")
-
+        self.salvar_caminho_csv(arquivo)
 
     def aplicar_filtro(self):
         categoria_filtro = self.filtro_categoria.get()
@@ -182,7 +240,7 @@ class InsumoGUI:
             self.tree.delete(item)
 
         for insumo in self.insumos:
-            nome, qtd, unidade, validade, categoria, fornecedor = insumo
+            nome, qtd, unidade, valor, validade, categoria, fornecedor = insumo
 
             if categoria_filtro != "Todas" and categoria != categoria_filtro:
                 continue
@@ -203,8 +261,9 @@ class InsumoGUI:
         self.nome_entry.delete(0, tk.END)
         self.qtd_entry.delete(0, tk.END)
         self.unidade_combo.set("kg")
+        self.valor_entry.delete(0, tk.END)
         self.validade_entry.delete(0, tk.END)
-        self.categoria_combo.set("Verdura")
+        self.categoria_combo.set("Cereal")
         self.fornecedor_entry.delete(0, tk.END)
 
         # Salva os dados atuais da tabela na lista
