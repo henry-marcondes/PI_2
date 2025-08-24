@@ -1,11 +1,14 @@
 import os
 from flask import Flask 
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 def create_app(test_config=None):
     # cria e configura o app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KET='dev',
+        SECRET_KEY='dev',
         SQLALCHEMY_DATABASE_URI='mysql+pymysql://henry:55631376@127.0.0.1/lili',
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
@@ -22,6 +25,9 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    # inicializa banco
+    db.init_app(app)
 
     # cria uma simples página
     @app.route("/Cardapio")
