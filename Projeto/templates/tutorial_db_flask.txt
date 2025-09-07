@@ -1,0 +1,48 @@
+    Aqui vamos descrever como integrar um Banco de dados
+existente no flask.
+    O SQLAlchemy consegue ler as tabelas já criadas no MySQL 
+e montar os modelos automaticamente usando reflexão (reflection). 
+Assim você não precisa reescrever as colunas no models.py.
+
+1. Na pasta Projeto crie um arquivo models.py para mapear suas 
+tabelas
+
+$ touch models.py
+
+No arquivo o modelo básico para importar:
+
+from . import db
+
+class Cardapio(db.Model):
+    __tablename__ = 'Cardapio'
+    __table_args__ = {'autoload_with': db.engine}
+
+O autoload_with=db.engine faz o SQLAlchemy consultar o 
+schema real no MySQL e importar todas as colunas com os 
+tipos corretos. Nesse caso importamos apenas a Tabela Cardapio.
+
+Interessante instalar o pacote com método de 
+autenticação, para isso vamos precisar do pacote
+cryptografphy . Com o ambiente virtual ativado:
+
+pip install cryptography
+
+
+Para verificar se tudo deu certinho é hora de testar:
+
+$ flask --app Projeto shell
+
+Dento do shell , teste:
+
+from Projeto.models import Cardapio
+print(Cardapio.__table__.columns.keys())
+
+deve listar as colunas existentes.
+
+
+
+
+
+
+
+

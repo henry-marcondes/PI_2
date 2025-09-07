@@ -1,14 +1,14 @@
 # base.py
 import tkinter as tk
 from tkinter import ttk, messagebox
-from model_bd import listar_insumos, adicionar_insumo, excluir_insumo, listar_fornecedores, adicionar_compra 
+from model_bd import listar_insumos, adicionar_insumo, excluir_insumo, listar_fornecedores, adicionar_compra, listar_cardapio
 from datetime import datetime
 
 class EstoqueApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Controle de Estoque - MySQL")
-        self.root.geometry("600x400")
+        self.root.geometry("650x400")
 
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill="both", expand=True)
@@ -28,6 +28,7 @@ class EstoqueApp:
         # ===== ABA PREPAROS =====
         self.frame_preparos = ttk.Frame(self.notebook, padding=10)
         self.notebook.add(self.frame_preparos, text="Preparos")
+        self._montar_aba_preparos()
 
 
         # ===== ABA RELATORIOS =====
@@ -71,6 +72,14 @@ class EstoqueApp:
         tk.Button(self.frame_compras, text="Lançar Compra", command=self.lancar_compra).grid(row=4, column=0, pady=10)
 
         self.carregar_combos_compras()
+
+    def _montar_aba_preparos(self):
+        self.tree = ttk.Treeview(self.frame_preparos,columns=("id","nome","gramatura"), show="headings")
+        self.tree.heading("id",text="COD")
+        self.tree.heading("nome", text="Nome")
+        self.tree.heading("gramatura", text="Gramatura")
+        self.tree.grid(row=0, column=0, columnspan=5, pady=5)
+        self.carregar_dados_cardapio()
 
     def carregar_combos_compras(self):
         insumos = listar_insumos()
@@ -126,16 +135,24 @@ class EstoqueApp:
 
         tk.Button(self.frame_insumos, text="Adicionar", command=self.adicionar_item).grid(row=2, column=0, pady=5)
         tk.Button(self.frame_insumos, text="Excluir", command=self.excluir_item).grid(row=2, column=1)
-        tk.Button(self.frame_insumos, text="Atualizar Lista", command=self.carregar_dados).grid(row=2, column=2)
+        tk.Button(self.frame_insumos, text="Atualizar Lista", command=self.carregar_dados_insumo).grid(row=2, column=2)
 
         self.tree = ttk.Treeview(self.frame_insumos, columns=("id", "nome", "categoria"), show="headings")
         self.tree.heading("id", text="COD")
         self.tree.heading("nome", text="Nome")
         self.tree.heading("categoria", text="Categoria")
         self.tree.grid(row=3, column=0, columnspan=8, pady=10)
-        self.carregar_dados()
+        self.carregar_dados_insumo()
 
-    def carregar_dados(self):
+    
+    def carregar_dados_cardapio(self):
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+        for cardapio in listar_cardapio():
+            self.tree.insert("","end", values=(
+                cardapio["id_cardapio"], cardapio["Nome"],cardapio["gramatura"]))
+
+    def carregar_dados_insumo(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
         for insumo in listar_insumos():
@@ -178,8 +195,6 @@ class EstoqueApp:
         self.categoria_combo.delete(0, tk.END)
         
     def _montar_aba_fornecedores(self):
-        #self.frame_fornecedores = ttk.Frame(self.notebook, padding=10)
-        #self.notebook.add(self.frame_fornecedores, text="Fornecedores")
 
         # Labels e Entrys para Fornecedor
         ttk.Label(self.frame_fornecedores, text="Nome:").grid(row=0, column=0, padx=5, pady=5)

@@ -1,0 +1,118 @@
+Preparando ambiente em um sistema operacional Linux
+
+Usando venv para criar um ambiente virtual dentro da pasta do projeto:
+
+$ python3 -m venv .venv
+
+ativando o ambiente virtual:
+
+$ . .venv/bin/activate
+
+Instalando o Flask:
+
+$ pip install Flask
+
+Ao invés de criar uma instância global Flask, criaremos essa instância
+dentro de uma função, conhecida como "fábrica de aplicativos". Assim 
+qualquer registro, configurações necessárias para o aplicativo ocorrerão 
+dentro da função e, em seguida, o aplicativo será retornado.
+
+Na pasta raiz PI_2 criaremos uma pasta chamada Projeto com nosso arquivo de 
+instanciação do flask ; __init__.py
+
+$ mkdir Projeto/__init__.py
+
+Explicando a arquivo:
+
+1. app = Flask(__name__, instance_relative_config=True)cria a Flaskinstância.
+
+__name__é o nome do módulo Python atual. O aplicativo precisa saber onde 
+ele está localizado para configurar alguns caminhos, e __name__é uma
+maneira conveniente de informar isso.
+
+instance_relative_config=Trueinforma ao aplicativo que os arquivos de 
+configuração são relativos à pasta da instância . A pasta da instância 
+está localizada fora do Projeto pacote e pode conter dados locais que não 
+devem ser submetidos ao controle de versão, como segredos de configuração 
+e o arquivo de banco de dados.
+
+2.app.config.from_mapping()define algumas configurações padrão que o 
+aplicativo usará:
+
+SECRET_KEYé usado pelo Flask e extensões para manter os dados seguros. 
+É definido para 'dev'fornecer um valor conveniente durante o desenvolvimento, 
+mas deve ser substituído por um valor aleatório durante a implantação.
+
+DATABASE , escolhemos o MYSQL para usar vamos instalar chamar uma extenção 
+(library) que irá facilitar as configurações e o uso com o flask. No terminal;
+
+$ pip install flask-sqlalchemy-pymysql
+
+e no ARQUIVO fazer a configuração:
+
+app.config.from_mapping(
+    SECRET_KEY='dev',
+    SQLALCHEMY_DATABASE_URI='mysql+pymysql://usuario:senha@localhost/BD',
+    SQLALCHEMY_TRACK_MODIFICATIONS=False
+)
+
+# usuario: usuário do MySQL (ex.: root)
+# senha: sua senha
+# localhost: host do servidor MySQL (pode ser 127.0.0.1 ou outro IP)
+# BD: nome do banco de dados
+
+3.app.config.from_pyfile()Substitui a configuração padrão pelos valores 
+obtidos do config.py arquivo na pasta da instância, se existir. 
+Por exemplo, durante a implantação, isso pode ser usado para definir um 
+arquivo SECRET_KEY.
+
+test_config também pode ser passado para a flask e será usado no lugar 
+da configuração da instância. Isso permite que os testes que você 
+escreverá posteriormente sejam configurados independentemente de quaisquer 
+valores de desenvolvimento que você tenha configurado.
+
+4.try: os.makedirs() garante que app.instance_path. O Flask não cria a pasta 
+da instância automaticamente, mas ela precisa ser criada porque seu projeto 
+criará o arquivo de banco de dados lá.
+
+5.@app.route() Cria uma rota simples para que você possa ver o aplicativo 
+funcionando antes de prosseguir com o restante do tutorial. 
+Ele cria uma conexão entre a URL /Cardapio uma função que retorna uma 
+resposta, a string neste caso.'Faça seu Pedido: CARDAPIO'
+
+Executar o aplicativo:
+
+Agora você pode executar seu aplicativo usando o flask comando. 
+No terminal, informe ao Flask onde encontrar seu aplicativo e execute-o 
+em modo de depuração. Lembre-se de que você deve estar no  
+direrio raiz PI_2 de nível superior, não no diretório /Projeto pacote.
+
+O modo de depuração exibe um depurador interativo sempre que uma página gera 
+uma exceção e reinicia o servidor sempre que você faz alterações no código. 
+Você pode deixá-lo em execução e simplesmente recarregar a página do navegador 
+enquanto segue o tutorial.
+
+$ flask --app Projeto run --debug
+Você verá uma saída semelhante a esta:
+
+* Serving Flask app "Projeto"
+* Debug mode: on
+* Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+* Restarting with stat
+* Debugger is active!
+* Debugger PIN: nnn-nnn-nnn
+Acesse http://127.0.0.1:5000/hello em um navegador e você verá a mensagem :
+
+“Faça seu pedido, CARDAPIO”
+
+Parabéns, agora você está executando sua aplicação web Flask!
+
+Certifique que a porta 5000 não está sendo usada por outra aplicação, 
+caso esteja sendo usada aparecerá algo como isso.
+OSError: [Errno 98]OSError: [WinError 10013]
+
+
+
+
+
+

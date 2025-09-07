@@ -1,0 +1,174 @@
+Vamos entender um pouco de Banco de Dados , antes de efetivamente
+começar nossas linhas de código.
+
+Um Banco de Dados, como o nome sugere, éum local que você armazena
+diversos tipos de Dados (informações), imagens, vídeos, enfim é 
+local para guardar e acessar "objetos", "infrmações", etc.
+
+E onde fica esse "Banco de Dados" ?
+Sendo direto e reto sem mais delongas, vamos pensar em dois locais
+bem distintos.
+    1. Na sua máquina local. É reservado um espaço no HD e lá vai
+    estar todas a estrutura do "Banco".
+
+    2. Na nuvem, ou seja na internet em alguma máquina que nós 
+    conhecemos pelo nome SERVIDOR ou PROVEDOR. Neste documento
+    vou adotar a nomelatura SERVIDOR. 
+
+Interessante você observar que ao instalar um software de Banco de 
+Dados na sua máquina, esse Banco de Dados será seu SERVIDOR. E você
+será o cliente. 
+
+Sendo assim você faz os pedidos e o SERVIDOR te responde de acordo
+com sua solicitação.
+
+Feita essa breve introdução, vamos ao MySQL.
+
+MYSQL é nosso sistema gerenciador de Banco de Dados. MYSQL administra
+o Banco de Dados. Exixtem vários outros gerenciadores 
+
+Nesse tutorial vamos adotar o MYSQL como nosso gerenciador por ser
+uma plataforma open source de código aberto, isso significa que não
+teremos restrições ao manipular as ferramentas do MYSQL, mas vale
+a dica de dar uma "olhadinha" na LICENSE que rege o MYSQL, e usaremos
+o sistema operacional Ubuntu 24.04, para esse tutorial.
+
+Recomendo novavemente o uso de um sistema operacional Linux para 
+proceguir nosso tutorial. Para aqueles que usam Windows podem usar
+o wsl2 optando pelo Ubuntu, como máquina virtual, que é nativo do
+Windows e simples de instalar. Caso precisem deixe nos comentários
+" quero instalar wsl2 LINUX", e faço um tutorial como instalar o 
+"wsl2".
+
+Feita as recomendações, vamos a "mão-na-massa", kkkk.
+
+Atualizar o sistema
+1- sudo apt update && sudo apt upgrade -y
+
+Vai pedir a senha de root (admistrador do Ubuntu)
+
+Se for a primeira vez que executa o update deve demorar um pouco, 
+paciência.
+
+2- Instalar o MySQL Server
+sudo apt install mysql-server -y
+
+
+Isso vai instalar o servidor MySQL e o cliente mysql.
+
+3- Verificar se o serviço está rodando
+sudo systemctl status mysql
+
+
+Se aparecer active (running), está funcionando.
+Para iniciar caso esteja parado:
+
+sudo systemctl start mysql
+
+
+E para ativar no boot:
+
+sudo systemctl enable mysql
+
+4- Fazer a configuração inicial
+
+O MySQL vem sem senha do root por padrão no Ubuntu (usa autenticação 
+por sistema). Perceba que não é a mesma senha de root do sistema.
+
+Você pode configurar executando:
+
+sudo mysql_secure_installation
+
+
+Passos recomendados:
+
+Definir senha para root.
+
+Remover usuários anônimos.
+
+Desabilitar login remoto do root (se não precisar).
+
+Remover banco de testes.
+
+Recarregar privilégios.
+
+5- Acessar o MySQL pela linha de comando
+sudo mysql -u root -p
+
+
+(Coloque a senha que definiu no passo anterior.)
+
+6- Liberar acesso remoto (opcional, para usar no MySQL Workbench de outro PC)
+
+Se quiser conectar de fora:
+
+Editar configuração:
+
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+
+
+Alterar:
+
+bind-address = 127.0.0.1
+
+
+para:
+
+bind-address = 0.0.0.0
+
+
+Reiniciar MySQL:
+
+sudo systemctl restart mysql
+
+
+Criar usuário remoto:
+
+CREATE USER 'usuario'@'%' IDENTIFIED BY 'senha123';
+GRANT ALL PRIVILEGES ON *.* TO 'usuario'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+7- Instalar o MySQL Workbench (opcional, no próprio Ubuntu)
+
+sudo apt install mysql-workbench -y
+
+Se não conseguir via sudo apt pode tentar via snap:
+
+snap find mysql-workbench
+
+Se estiver disponivel no snap, na saída do terminal você verá algo como:
+
+Name                       Version  Publisher   Notes  Summary
+mysql-workbench-community  8.0.36   tonybolzan  -      MySQL Workbench
+
+Agora é só instalar:
+
+sudo snap install mysql-workbench-community
+
+
+Dependendo da aquitetura do processador da sua máquina você pode encontrar
+algumas dificuldades para instalar o MySQL Workbench, como exemplo o 
+mysql-workbench não dá suporte a arquiteturas amrf. Ou seja não será possível
+instalar. (já aconteceu comigo) a solução é usar somente a linha de comando 'cli',
+ou melhor ... para quem está chegando agora, usar o terminal, ou a aquela
+'telinha preta' que eu amooo !!! kkkk
+
+
+Depois, abra com:
+
+mysql-workbench 
+
+Pronto agora estamos prontos para começar, com todas as ferramentas em mãos,
+e para aqueles que não conseguirem instalar o mysql-workbench, não se deses-
+perem, vamos estar atentos, e fornecendo as linhas de código para usarem no
+terminal. 
+
+Finalizando sugiro assistirem esse vídeo, que ajudará muito vocês nos primeiros
+passos com o workbench. 
+
+https://www.youtube.com/watch?v=IgO6L7jXbxY
+
+
+
+
+

@@ -1,0 +1,97 @@
+  INTRODUÇÃO
+  
+  Anteriormente, foi apresentada as ferramentas para podermos alinhar
+o Banco de Dados no Projeto, para aqueles que efetivamente vão participar do desenvolvimento
+e ajudar a estruturar o Banco para *Normalização, afim de atingir ao menos a **Segunda Forma 
+Normal(2NF). (Univesp Banco de Dados - COM300 semana 3)
+
+  No MYSQL trabalharemos com a Linguagem SQL(STRUCTURED QUERY LANGUAGE), é uma linguagem padrão 
+para SGBDs comerciais. Há um padrão, estabelecido pelo American National Standards Institute 
+(ANSI) e pela International Standards Organization (ISO).
+
+  Existe várias formas de sincronizar os Banco de Dados para essa etapa de desenvolvimento, estou
+optando por deixar independente nesse processo inicial por uma questão de Gerenciamento e para
+seja possível aplicar estratégias e técnicas de refatoração e teste de Caixa Branca entre outros.
+(Univesp - Engenharia de Software - COM390 semana 5)
+
+  Para poder alinhar os Bancos de Dados, vou passar um script.sql, que poderá ser executado tanto
+no MYSQL cli como MYSQL-Workbench. E é exatamente o contexto que vamos desenvolver aqui. O 
+arquivo.sql está disponível no repositório do Projeto atualizado:  
+
+https://github.com/henry-marcondes/PI_2.git
+
+  O ideal é vc fazer o clone do repositório na sua máquina via git, já foi abordado esse assunto 
+em outro tutorial, assim como foi feito a introdução ao MySQL no último tutorial. 
+
+1- Caso queira apenas trabalhar no Banco de Dados ... Procure o arquivo 
+  
+  lili_backup.sql, e copie para sua máquina.
+
+2- Criar o banco de dados na nova máquina
+
+entrar no MySQL cli:
+
+mysql  -u 'seu_usuario' -p [enter do teclado]
+
+digite o seguinte comando:
+
+CREATE DATABASE lili CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+exit;
+
+explicação do comando:
+
+CREATE DATABASE lili, você esta efetivamente criando um novo banco de nome lili. 
+
+CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci; esta defininido as regras referentes
+a codificação dos caracteres.
+
+exit; sai do banco de dados.
+
+3- Importar o backup
+
+No terminal:
+
+mysql -u root -p lili < lili_backup.sql
+
+
+  Isso vai recriar todas as tabelas e inserir os dados. E "voalaaa" está feito agora é só brincar
+com o banco de dados. 
+
+4- Para testar se tudo deu certo:
+
+mysql  -u 'seu_usuario' -p [enter do teclado]
+
+USE lili;
+SHOW TABLES;
+
+Você terá uma saida assim:
+
+mysql> show tables;
++----------------+
+| Tables_in_lili |
++----------------+
+| Cardapio       |
+| Compras        |
+| Endereco       |
+| Ficha_Tecnica  |
+| Fone           |
+| Ingredientes   |
+| Insumos        |
+| Movimentacoes  |
+| Pessoa         |
++----------------+
+9 rows in set (0.01 sec)
+
+
+
+
+
+* Normalização: É um processo de análise e adequação dos esquemas de tabelas com o objetivo de 
+minimizar redundâncias e anomalias de inserção, exclusão e alteração.
+
+** Segunda Forma Normal (2NF): é baseada no conceito de atributo primo e dependência funcional 
+total.
+• A dependência funcional X Y é uma dependência funcional total se ao remover qualquer 
+atributo A de X a dependência funcional deixa de valer.
+• Ou seja, para qualquer A ∈ X, (X- A) não determina funcionalmente Y.

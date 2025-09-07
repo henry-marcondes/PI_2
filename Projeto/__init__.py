@@ -1,5 +1,5 @@
 import os
-from flask import Flask 
+from flask import Flask, render_template, request, redirect, url_for, flash 
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -28,9 +28,40 @@ def create_app(test_config=None):
 
     # inicializa banco
     db.init_app(app)
+    
+    # Importa modelos dentro do contexto
+    with app.app_context():
+        db.Model.metadata.reflect(bind=db.engine)
+        from Projeto import models
+        # Link explícito da tabela refletida para a classe
+        models.Cardapio.__table__ = db.Model.metadata.tables["Cardapio"]
 
-    # cria uma simples página
+    # Página Vitrine
+    @app.route("/vitrine")
+    def vitrine():
+        from Projeto.models import Cardapio
+        produtos = Cardapio.query.all()
+        return render_template("vitrine.html", produtos=produtos)
+    
+    # Cadastro de Usuário (não salva ainda, apenas flash)
+    @app.route("/cadastro", methods=["GET", "POST"])
+    def cadastro():
+        if request.method == "POST":
+            nome = request.form.get("nome")
+            email = request.form.get("email")
+            telefone = request.form.get("telefone")
+
+            if not nome or not telefone:
+                flash("Preencha Nome e Telefone")
+            else:
+                flash(f"Ususário {nome} cadastrado com sucesso!")
+
+        return render_template("cadastro.html")
+
     @app.route("/Cardapio")
-    def Cardapio():
-        return " Faça seu Pedido: CARDAPIO"
+    def cardapio():
+        from Projeto.models import Cardapio
+        itens = Cardapio.query.all()
+        return "<br>".join([f"{c.id_cardapio} - {c.Nome} - {c.gramatura}g" for c in itens])
+
     return app
