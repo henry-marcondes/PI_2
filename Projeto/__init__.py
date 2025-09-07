@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash 
 from flask_sqlalchemy import SQLAlchemy
+from flasgger import Swagger
 
 db = SQLAlchemy()
 
@@ -28,6 +29,8 @@ def create_app(test_config=None):
 
     # inicializa banco
     db.init_app(app)
+    # inicializa o Swagger
+    Swagger(app)
     
     # Importa modelos dentro do contexto
     with app.app_context():
@@ -39,6 +42,15 @@ def create_app(test_config=None):
     # Página Vitrine
     @app.route("/vitrine")
     def vitrine():
+        """
+        Página Vitrine
+        ---
+        tags:
+          - Produtos
+        responses:
+          200:
+            description: Lista todos os produtos cadastrados
+        """
         from Projeto.models import Cardapio
         produtos = Cardapio.query.all()
         return render_template("vitrine.html", produtos=produtos)
@@ -46,13 +58,46 @@ def create_app(test_config=None):
     # Cadastro de Usuário (não salva ainda, apenas flash)
     @app.route("/cadastro", methods=["GET", "POST"])
     def cadastro():
+        """
+        Página Cadastro
+        ---
+        tags:
+            - Usuários
+        parameters:
+          - name: nome
+            in: formData
+            type: string
+            required: true
+          - name: email
+            in: formData
+            type: string
+            required: true
+          - name: whatsApp
+            in: formData
+            type: sring
+            required: false
+          - name: user
+            in: formData
+            type: sring
+            required: false
+          - name: login
+            in: formData
+            type: sring
+            required: false
+        responses:
+          200:
+            description: Página de Cadastro de Cientes
+
+        """
         if request.method == "POST":
             nome = request.form.get("nome")
             email = request.form.get("email")
-            telefone = request.form.get("telefone")
+            whatsApp = request.form.get("whatsApp")
+            user = request.form.get("usuário")
+            login = request.form.get("Senha")
 
-            if not nome or not telefone:
-                flash("Preencha Nome e Telefone")
+            if not nome or not whatsApp:
+                flash("Preencha Nome e whatsApp")
             else:
                 flash(f"Ususário {nome} cadastrado com sucesso!")
 
@@ -60,6 +105,15 @@ def create_app(test_config=None):
 
     @app.route("/Cardapio")
     def cardapio():
+        """
+        Lista o cardápio
+        ---
+        tags:
+          - Cardápio
+        responses:
+          200:
+            description: Lista dos itens do cardápio em texto simples
+        """
         from Projeto.models import Cardapio
         itens = Cardapio.query.all()
         return "<br>".join([f"{c.id_cardapio} - {c.Nome} - {c.gramatura}g" for c in itens])
