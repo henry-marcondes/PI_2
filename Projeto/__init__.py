@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash 
+from flask import Flask, render_template, request, flash 
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 
@@ -30,7 +30,48 @@ def create_app(test_config=None):
     # inicializa banco
     db.init_app(app)
     # inicializa o Swagger
-    Swagger(app)
+    # Configuração personalizada do Swagger
+    swagger_template = {
+        "swagger": "2.0",
+        "info": {
+            "title": "API do Sistema Lili",
+            "description": "Documentação interativa das rotas do sistema de cardápio e cadastro.",
+            "version": "1.0.0",
+            "contact": {
+                "responsible": "Henry Fernando Espindola Marcondes",
+                "email": "raizmaker@gmail.com",
+            },
+            "license": {
+                "name": "GNU GENERAL PUBLIC LICENSE",
+                "url": "https://fsf.org/"
+            }
+        },
+        "basePath": "/",  # Rota base da API
+        "schemes": [
+            "http"
+        ],
+    }
+
+    swagger_config = {
+        "headers": [],
+        "specs": [
+            {
+                "endpoint": "apispec_1",
+                "route": "/apispec_1.json",
+                "rule_filter": lambda rule: True,
+                "model_filter": lambda tag: True,
+            }
+        ],
+        "static_url_path": "/flasgger_static",
+        "swagger_ui": True,
+        "specs_route": "/apidocs/",
+        "swagger_ui_bundle_js": "//unpkg.com/swagger-ui-dist/swagger-ui-bundle.js",
+        "swagger_ui_standalone_preset_js": "//unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js",
+        "swagger_ui_css": "//unpkg.com/swagger-ui-dist/swagger-ui.css",
+        "layout": "Material"
+    }
+
+    Swagger(app, template=swagger_template, config=swagger_config)
     
     # Importa modelos dentro do contexto
     with app.app_context():
