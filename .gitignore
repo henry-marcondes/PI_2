@@ -8,6 +8,7 @@ teste_2.py
 model_bd.py
 abas.py
 static/teste/requisitos.xmi
+templates/teste.html
 docker_mysql/docker-compose.yml
 docker_mysql/tutorial_docker.txt
 docker_mysql/initdb/bd_24_08.sql

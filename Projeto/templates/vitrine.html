@@ -4,43 +4,117 @@
     <meta charset="UTF-8">
     <title>Congelados</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f1a5a5; }
-        h1 { text-align: center; }
-        .produtos { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-        .produto { background: white; padding: 15px; border-radius: 8px; width: 200px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-        .produto img { width: 100%; height: 150px; object-fit: cover; border-radius: 5px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            background-color: #f1a5a5; 
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .navbar .links form {
+            display: inline;
+        }
+
+        .navbar button {
+            margin-left: 10px;
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .navbar button:hover {
+            background-color: #2d7631;
+        }
+
+        /* Ajuste para não esconder o conteúdo atrás da navbar */
+        .content {
+            padding-top: 70px;
+        }
+
+        /* Produtos */
+        .produtos { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            justify-content: center; 
+            margin: 20px;
+        }
+
+        .produto { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            width: 200px; 
+            box-shadow: 0 0 5px rgba(0,0,0,0.1); 
+        }
+
+        .produto img { 
+            width: 100%; 
+            height: 150px; 
+            object-fit: cover; 
+            border-radius: 5px; 
+        }
+
         .produto h3 { margin: 10px 0 5px 0; }
         .produto p { margin: 5px 0; }
-        .produto button { margin-top: 10px; padding: 5px 10px; background-color: #4CAF50; color: rgb(14, 14, 14); border: none; border-radius: 4px; cursor: pointer; }
-        .produto button:hover { background-color: #2d7631; }
     </style>
 </head>
 <body>
-    <h1>Congelados Sim Porque Não</h1>
-    <div class="produtos">
-        {% for produto in produtos %}
-        <div class="produto">
-            {% if produto.imagem %}
-                <img src="{{ url_for('static', filename='imagens/'+ produto.imagem) }}" alt="{{ produto.imagem }}">
-            {% else %}
-                <img src="{{ url_for('static', filename='imagens/embalagens.jpg') }}" alt="{{ produto.Nome }}">
-            {% endif %}
 
-            <h3>{{ produto.Nome }}</h3>
-            <p>{{ produto.gramatura }}</p>
-            {% if produto.Preco %}
-                <p>Preço: R$ {{ "%.2f"|format(produto.Preco) }}</p>
-            {% endif %}
-            
-        </div>
-        {% endfor %}
-        <div class="produto">
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <h1>Congelados Sim Porque Não</h1>
+        <div class="links">
+            <form action="{{ url_for('login') }}">
+                <button type="submit">Login</button>
+            </form>
             <form action="{{ url_for('cadastro') }}">
                 <button type="submit">Cadastrar-se</button>
             </form>
-
         </div>
-            
+    </div>
+
+    <!-- CONTEÚDO -->
+    <div class="content">
+        <div class="produtos">
+            {% for produto in produtos %}
+            <div class="produto">
+                {% if produto.imagem %}
+                    <img src="{{ url_for('static', filename='imagens/'+ produto.imagem) }}" alt="{{ produto.imagem }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='imagens/embalagens.jpg') }}" alt="{{ produto.Nome }}">
+                {% endif %}
+
+                <h3>{{ produto.Nome }}</h3>
+                <p>{{ produto.gramatura }}</p>
+                {% if produto.Preco %}
+                    <p>Preço: R$ {{ "%.2f"|format(produto.Preco) }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
 </body>

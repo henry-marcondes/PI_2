@@ -148,28 +148,47 @@ def create_app(test_config=None):
                     # Commit no banco
                     db.session.commit()
 
-                   
-
+                    # Redireciona para a vitrine
                 flash(f"Usuário {nome} cadastrado com sucesso!", "success")
-                return redirect(url_for("cadastro"))
+                return redirect(url_for("vitrine"))
 
         return render_template("cadastro.html")
 
 
     
-    @app.route("/Cardapio")
+    @app.route("/cardapio")
     def cardapio():
-        """
-        Lista o cardápio
-        ---
-        tags:
-          - Cardápio
-        responses:
-          200:
-            description: Lista dos itens do cardápio em texto simples
-        """
+       
         from Projeto.models import Cardapio
         itens = Cardapio.query.all()
         return "<br>".join([f"{c.id_cardapio} - {c.Nome} - {c.gramatura}g" for c in itens])
+    
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        if request.method == "POST":
+            user = request.form.get("user")
+            login_senha = request.form.get("login")  # melhor renomear para não confundir
+
+            if not user or not login_senha:
+                flash("Preencha Nome de Usuário e Senha", "error")
+            else:
+                usuario = User.query.filter_by(username=user).first()
+                if usuario and usuario.password == login_senha:
+                    flash(f"Usuário {usuario.username} logado com sucesso!", "success")
+                    return redirect(url_for("usuario"))  # redireciona para a página do usuário
+                else:
+                    flash("Usuário ou Senha inválidos", "error")
+
+        return render_template("login.html")
+    
+    @app.route("/usuario")
+    def usuario():
+        # aqui você poderia pegar o usuário logado via sessão
+        # por exemplo: user = session.get("user")
+        # mas por enquanto vamos passar um objeto fake para exemplo
+        user = User.query.first()  
+        return render_template("usuario.html", user=user)
+
+
 
     return app

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Usuário</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f1a5a5; 
+            margin: 0; 
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .mensagens {
+            margin-bottom: 15px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>Área do Usuário</h1>
+        <div>
+            <a href="{{ url_for('vitrine') }}">Home</a>
+            <a href="{{ url_for('login') }}">Sair</a>
+        </div>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mensagens">
+              {% for category, message in messages %}
+                <p class="{{ category }}">{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <h2>Bem-vindo, {{ user.username }}!</h2>
+        <p>Você acessou a área restrita do sistema.</p>
+        <p>Aqui você pode gerenciar seus dados, visualizar pedidos ou acessar informações exclusivas.</p>
+    </div>
+
+</body>
+</html>
+
