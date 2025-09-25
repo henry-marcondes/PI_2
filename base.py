@@ -81,7 +81,16 @@ class EstoqueApp:
         self.tree.grid(row=0, column=0, columnspan=5, pady=5)
         self.carregar_dados_cardapio()
 
-    def carregar_combos_compras(self):
+    def carregar_combos_compras(self):    
+        """
+            Carrega os combos de Insumos e Fornecedores com os dados do banco de dados.
+
+            Cria um dicionário com os nomes dos Insumos como chave e o idInsumos como valor.
+            Cria outro dicionário com os nomes dos Fornecedores como chave e o idFornecedor como valor.
+            Os valores desses dicionários são usados para popular os combos de Insumos e Fornecedores 
+            na aba Compras.
+        """
+
         insumos = listar_insumos()
         self.insumos_dict = {f"{i['nome']} ({i['categoria']})": i['idInsumos'] for i in insumos}
         self.insumo_combo['values'] = list(self.insumos_dict.keys())
@@ -89,6 +98,7 @@ class EstoqueApp:
         fornecedores = listar_fornecedores()
         self.fornecedores_dict = {f"{f['nome']}": f['idFornecedor'] for f in fornecedores}
         self.fornecedor_combo['values'] = list(self.fornecedores_dict.keys())
+
 
     def lancar_compra(self):
         insumo_nome = self.insumo_combo.get()
@@ -109,8 +119,30 @@ class EstoqueApp:
             valor = float(self.valor_entry.get())
             validade = self.validade_entry.get()
 
-            menor_parte = quantidade  # Aqui você pode fazer conversão automática
-            valor_medio = quantidade / valor if valor != 0 else 0
+            if unidade == "kg":
+                menor_parte = quantidade * 1000
+            elif unidade == "L":
+                menor_parte = quantidade * 1000
+            elif unidade == "g":
+                menor_parte = quantidade
+            elif unidade == "ml":
+                menor_parte = quantidade
+            elif unidade == "unid":
+                menor_parte = quantidade
+            else:
+                menor_parte = 0
+
+            valor_medio = valor / menor_parte if menor_parte != 0 else 0
+
+            #---teste desenvolvimento---
+            print(f"Insumo: {insumo_nome}")
+            print(f"Quantidade: {quantidade}")
+            print(f"Unidade: {unidade}")
+            print(f"Menor Parte: {menor_parte}")
+            print(f"Valor: {valor}")
+            print(f"Validade: {validade}")
+            print(f"Valor Médio: {valor_medio}")
+            print("-----------------------------")
 
             adicionar_compra(id_insumo, quantidade, unidade, valor, validade, fornecedor_id, menor_parte, valor_medio)
             messagebox.showinfo("Sucesso", "Compra lançada com sucesso!")
@@ -137,11 +169,11 @@ class EstoqueApp:
         tk.Button(self.frame_insumos, text="Excluir", command=self.excluir_item).grid(row=2, column=1)
         tk.Button(self.frame_insumos, text="Atualizar Lista", command=self.carregar_dados_insumo).grid(row=2, column=2)
 
-        self.tree = ttk.Treeview(self.frame_insumos, columns=("id", "nome", "categoria"), show="headings")
-        self.tree.heading("id", text="COD")
-        self.tree.heading("nome", text="Nome")
-        self.tree.heading("categoria", text="Categoria")
-        self.tree.grid(row=3, column=0, columnspan=8, pady=10)
+        self.tree_in = ttk.Treeview(self.frame_insumos, columns=("id", "nome", "categoria"), show="headings")
+        self.tree_in.heading("id", text="COD")
+        self.tree_in.heading("nome", text="Nome")
+        self.tree_in.heading("categoria", text="Categoria")
+        self.tree_in.grid(row=3, column=0, columnspan=8, pady=10)
         self.carregar_dados_insumo()
 
     
@@ -153,10 +185,10 @@ class EstoqueApp:
                 cardapio["id_cardapio"], cardapio["Nome"],cardapio["gramatura"]))
 
     def carregar_dados_insumo(self):
-        for i in self.tree.get_children():
-            self.tree.delete(i)
+        for i in self.tree_in.get_children():
+            self.tree_in.delete(i)
         for insumo in listar_insumos():
-            self.tree.insert("", "end", values=(
+            self.tree_in.insert("", "end", values=(
                 insumo["idInsumos"], insumo["nome"], insumo["categoria"]))
 
     def adicionar_item(self):
@@ -170,23 +202,23 @@ class EstoqueApp:
 
         try:
             adicionar_insumo(nome,categoria)
-            self.carregar_dados()
+            self.carregar_dados_insumo()
             self.limpar_campos()
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao adicionar: {e}")
 
     def excluir_item(self):
-        selecionado = self.tree.selection()
+        selecionado = self.tree_in.selection()
         if not selecionado:
             messagebox.showwarning("Aviso", "Selecione um item para excluir.")
             return
 
-        item = self.tree.item(selecionado)
+        item = self.tree_in.item(selecionado)
         id_insumo = item["values"][0]
 
         try:
             excluir_insumo(id_insumo)
-            self.carregar_dados()
+            self.carregar_dados_insumo()
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao excluir: {e}")
 

@@ -4,6 +4,10 @@ existente no flask.
 e montar os modelos automaticamente usando reflexão (reflection). 
 Assim você não precisa reescrever as colunas no models.py.
 
+Não esqueça de ativar o ambiente virtual
+
+# source .venv/bin/activate 
+
 1. Na pasta Projeto crie um arquivo models.py para mapear suas 
 tabelas
 
@@ -38,6 +42,21 @@ from Projeto.models import Cardapio
 print(Cardapio.__table__.columns.keys())
 
 deve listar as colunas existentes.
+
+2. É possivel gerar as classes completas (para depois editar e usar normalmente)
+usando a lib sqlacodegen
+
+# pip install sqlacodegen
+
+Uma vez instalada, entre no diretorio Prjeto:
+
+# cd Projeto
+
+# sqlacodegen mysql+pymysql://usuario:senha@localhost/nome_do_banco > models.py
+
+Isso vai criar um models.py com todas as classes já prontas, besada no 
+seu banco.
+
 
 
 

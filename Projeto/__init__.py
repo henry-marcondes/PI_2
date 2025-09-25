@@ -1,13 +1,17 @@
+##__init__.py
 import os
-from flask import Flask, render_template, request, flash 
+from flask import Flask, render_template, request, flash, redirect, url_for 
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
 
-db = SQLAlchemy()
+app = Flask(__name__)
+db = SQLAlchemy() 
 
 def create_app(test_config=None):
     # cria e configura o app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__,
+                template_folder=os.path.join(os.path.dirname(__file__),"templates"),
+                instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
         SQLALCHEMY_DATABASE_URI='mysql+pymysql://henry:55631376@127.0.0.1/lili',
@@ -29,8 +33,13 @@ def create_app(test_config=None):
 
     # inicializa banco
     db.init_app(app)
-    # inicializa o Swagger
-    # Configuração personalizada do Swagger
+    # import routes e modelos
+    with app.app_context():
+        from . import models
+
+    from .models import Cardapio, Pessoa, User, Fone
+        
+    # inicializa o Swagger com a Configuração personalizada do Swagger
     swagger_template = {
         "swagger": "2.0",
         "info": {
@@ -74,11 +83,9 @@ def create_app(test_config=None):
     Swagger(app, template=swagger_template, config=swagger_config)
     
     # Importa modelos dentro do contexto
-    with app.app_context():
-        db.Model.metadata.reflect(bind=db.engine)
-        from Projeto import models
-        # Link explícito da tabela refletida para a classe
-        models.Cardapio.__table__ = db.Model.metadata.tables["Cardapio"]
+    #with app.app_context():
+        #from Projeto import models
+       
 
     # Página Vitrine
     @app.route("/vitrine")
@@ -92,58 +99,64 @@ def create_app(test_config=None):
           200:
             description: Lista todos os produtos cadastrados
         """
-        from Projeto.models import Cardapio
         produtos = Cardapio.query.all()
         return render_template("vitrine.html", produtos=produtos)
-    
+        #return {"produtos": [(p.Nome, p.gramatura,p.imagem) for p in produtos]}
+
+
     # Cadastro de Usuário (não salva ainda, apenas flash)
     @app.route("/cadastro", methods=["GET", "POST"])
     def cadastro():
-        """
-        Página Cadastro
-        ---
-        tags:
-            - Usuários
-        parameters:
-          - name: nome
-            in: formData
-            type: string
-            required: true
-          - name: email
-            in: formData
-            type: string
-            required: true
-          - name: whatsApp
-            in: formData
-            type: sring
-            required: false
-          - name: user
-            in: formData
-            type: sring
-            required: false
-          - name: login
-            in: formData
-            type: sring
-            required: false
-        responses:
-          200:
-            description: Página de Cadastro de Cientes
-
-        """
         if request.method == "POST":
-            nome = request.form.get("nome")
-            email = request.form.get("email")
-            whatsApp = request.form.get("whatsApp")
-            user = request.form.get("usuário")
-            login = request.form.get("Senha")
+            nome = request.form.get("nome")            # Tabela: Pessoa[1]: nome
+            sobrenome = request.form.get("sobrenome")  # Tabela: Pessoa[2]: sobrenome
+            email = request.form.get("email")          # Tabela: User[2]: email
+            whatsApp = request.form.get("whatsapp")    # Tabela: Fone[1]: fone
+            user = request.form.get("user")            # Tabela: User[1]: username
+            login = request.form.get("login")          # Tabela: User[3]: password
+            confirm_login = request.form.get("confirm-login")
 
             if not nome or not whatsApp:
                 flash("Preencha Nome e whatsApp")
+            elif login != confirm_login:
+                flash("Senhas diferentes")
             else:
-                flash(f"Ususário {nome} cadastrado com sucesso!")
+                # Verifique se o 'username' já existe no banco de dados
+                existing_user = User.query.filter_by(username=user).first()
+                if existing_user:
+                    flash("Nome de usuário já existe", "error")
+                else:
+                    # Cria Pessoa
+                    nova_pessoa = Pessoa(nome=nome,sobrenome=sobrenome)                  
+                    db.session.add(nova_pessoa)
+                    db.session.flush()  # para pegar o id da pessoa antes do commit
+
+                    # Cria User
+                    novo_user = User(username=user, email=email,password=login,
+                                     pessoa_id=nova_pessoa.id_pessoa)
+                    db.session.add(novo_user)
+                    db.session.flush() # pegar o id do usuário
+
+                   # Atualiza Pessoa.id_usuario com o id do User recém criado
+                    nova_pessoa.id_usuario = novo_user.idUser
+                    db.session.add(nova_pessoa)  # marca como "dirty" para update 
+
+                    # Cria Fone
+                    novo_fone = Fone(fone=whatsApp,pessoa_id=nova_pessoa.id_pessoa)
+                    db.session.add(novo_fone)
+
+                    # Commit no banco
+                    db.session.commit()
+
+                   
+
+                flash(f"Usuário {nome} cadastrado com sucesso!", "success")
+                return redirect(url_for("cadastro"))
 
         return render_template("cadastro.html")
 
+
+    
     @app.route("/Cardapio")
     def cardapio():
         """

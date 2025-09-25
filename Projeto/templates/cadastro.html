@@ -5,7 +5,7 @@
     <title>Cadastro</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        form { max-width: 400px; margin: auto; padding: 20px; background: #f9f9f9; border-radius: 8px; }
+        form { max-width: 400px; margin: auto; padding: 20px; background: #f86868; border-radius: 8px; }
         label { display: block; margin-top: 10px; }
         input { width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
         button { margin-top: 15px; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
@@ -24,14 +24,26 @@
       {% endif %}
     {% endwith %}
     <form method="POST">
-        <label for="nome">Nome:</label>
+        <label for="nome">PrimeiroNome:</label>
         <input type="text" id="nome" name="nome" required>
+
+        <label for="sobrenome">Sobrenome:</label>
+        <input type="text" id="sobrenome" name="sobrenome" required>
 
         <label for="email">E-mail:</label>
         <input type="email" id="email" name="email" required>
 
-        <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone">
+        <label for="whatsapp">WhatsApp:</label>
+        <input type="text" id="whatsapp" name="whatsapp">
+
+        <label for="user">Nome de Usuário:</label>
+        <input type="text" id="user" name="user">
+
+        <label for="login">Senha mínimo 6 digitos e 1 caracteres especial:</label> 
+        <input type="password" id="login" name="login"required>
+
+        <label for="confirm-login">Confirme a Senha:</label>
+        <input type="password" id="confirm-login" name="confirm-login" required>
 
         <button type="submit">Cadastrar</button>
     </form>

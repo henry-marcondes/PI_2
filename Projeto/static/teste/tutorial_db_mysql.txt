@@ -168,6 +168,8 @@ passos com o workbench.
 
 https://www.youtube.com/watch?v=IgO6L7jXbxY
 
+mycli -u henry -p 55631376 -h localhost -P 3306 lili
+
 
 
 
