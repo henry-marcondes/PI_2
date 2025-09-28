@@ -57,16 +57,18 @@ class Pessoa(db.Model):
     data_nasc = db.Column(db.Date)
     data_cadastro = db.Column(db.TIMESTAMP, server_default=db.text('CURRENT_TIMESTAMP'))
     id_usuario = db.Column(db.Integer)
+    
 
-    Fone = db.relationship('Fone', back_populates='pessoa')
+    # coleção de fones (um-para-muitos)
+    fones = db.relationship('Fone', back_populates='pessoa', cascade="all, delete-orphan")
     User = db.relationship('User', back_populates='pessoa')
 
 
 class Fone(db.Model):
     __tablename__ = 'Fone'
     __table_args__ = (
-        db.ForeignKeyConstraint(['pessoa_id'], ['Pessoa.id_pessoa'], name='fk_para_pessoa_1'),
-        db.Index('fk_para_pessoa_1_idx', 'pessoa_id')
+        db.ForeignKeyConstraint(['pessoa_id'], ['Pessoa.id_pessoa'], name='fk_fone_pessoa'),
+        db.Index('fk_fone_pessoa_idx', 'pessoa_id')
     )
 
     id_fone = db.Column(db.Integer, primary_key=True)
@@ -74,7 +76,7 @@ class Fone(db.Model):
     id_fornecedor = db.Column(db.Integer)
     pessoa_id = db.Column(db.Integer)
 
-    pessoa = db.relationship('Pessoa', back_populates='Fone')
+    pessoa = db.relationship('Pessoa', back_populates='fones')
     Fornecedor = db.relationship('Fornecedor', back_populates='fone')
 
 

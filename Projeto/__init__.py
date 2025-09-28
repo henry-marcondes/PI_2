@@ -1,8 +1,10 @@
 ##__init__.py
+from datetime import datetime
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for 
 from flask_sqlalchemy import SQLAlchemy
-from flasgger import Swagger
+from flask import session
+import re
 
 app = Flask(__name__)
 db = SQLAlchemy() 
@@ -39,66 +41,12 @@ def create_app(test_config=None):
 
     from .models import Cardapio, Pessoa, User, Fone
         
-    # inicializa o Swagger com a Configuração personalizada do Swagger
-    swagger_template = {
-        "swagger": "2.0",
-        "info": {
-            "title": "API do Sistema Lili",
-            "description": "Documentação interativa das rotas do sistema de cardápio e cadastro.",
-            "version": "1.0.0",
-            "contact": {
-                "responsible": "Henry Fernando Espindola Marcondes",
-                "email": "raizmaker@gmail.com",
-            },
-            "license": {
-                "name": "GNU GENERAL PUBLIC LICENSE",
-                "url": "https://fsf.org/"
-            }
-        },
-        "basePath": "/",  # Rota base da API
-        "schemes": [
-            "http"
-        ],
-    }
-
-    swagger_config = {
-        "headers": [],
-        "specs": [
-            {
-                "endpoint": "apispec_1",
-                "route": "/apispec_1.json",
-                "rule_filter": lambda rule: True,
-                "model_filter": lambda tag: True,
-            }
-        ],
-        "static_url_path": "/flasgger_static",
-        "swagger_ui": True,
-        "specs_route": "/apidocs/",
-        "swagger_ui_bundle_js": "//unpkg.com/swagger-ui-dist/swagger-ui-bundle.js",
-        "swagger_ui_standalone_preset_js": "//unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js",
-        "swagger_ui_css": "//unpkg.com/swagger-ui-dist/swagger-ui.css",
-        "layout": "Material"
-    }
-
-    Swagger(app, template=swagger_template, config=swagger_config)
-    
-    # Importa modelos dentro do contexto
-    #with app.app_context():
-        #from Projeto import models
-       
+   
 
     # Página Vitrine
     @app.route("/vitrine")
     def vitrine():
-        """
-        Página Vitrine
-        ---
-        tags:
-          - Produtos
-        responses:
-          200:
-            description: Lista todos os produtos cadastrados
-        """
+       
         produtos = Cardapio.query.all()
         return render_template("vitrine.html", produtos=produtos)
         #return {"produtos": [(p.Nome, p.gramatura,p.imagem) for p in produtos]}
@@ -167,28 +115,95 @@ def create_app(test_config=None):
     def login():
         if request.method == "POST":
             user = request.form.get("user")
+            #login_senha = request.form.get("password")
             login_senha = request.form.get("login")  # melhor renomear para não confundir
 
             if not user or not login_senha:
                 flash("Preencha Nome de Usuário e Senha", "error")
             else:
                 usuario = User.query.filter_by(username=user).first()
-                if usuario and usuario.password == login_senha:
+                if usuario and User.query.filter_by(password = login_senha ):
+                    session["user_id"] = usuario.idUser
+                    session["pessoa_id"] = usuario.pessoa_id
                     flash(f"Usuário {usuario.username} logado com sucesso!", "success")
-                    return redirect(url_for("usuario"))  # redireciona para a página do usuário
+                    return redirect(url_for("usuario", usiario=usuario.username))  # redireciona para a página do usuário
                 else:
                     flash("Usuário ou Senha inválidos", "error")
 
         return render_template("login.html")
     
-    @app.route("/usuario")
+    @app.route("/usuario", methods=["GET", "POST"])
     def usuario():
-        # aqui você poderia pegar o usuário logado via sessão
-        # por exemplo: user = session.get("user")
-        # mas por enquanto vamos passar um objeto fake para exemplo
-        user = User.query.first()  
-        return render_template("usuario.html", user=user)
+        user_id = session.get("user_id")
+        if not user_id:
+            flash("Usuário não autenticado.")
+            return redirect(url_for("login"))
 
+        #  Busca usuário e pessoa
+        usuario = User.query.get(user_id)
+        if not usuario:
+            flash("Usuário não encontrado.")
+            return redirect(url_for("login"))
+
+        pessoa = Pessoa.query.get(usuario.pessoa_id)  # ou usuario.pessoa se relação existir
+        if not pessoa:
+            flash("Pessoa vinculada ao usuário não encontrada.")
+            return redirect(url_for("login"))
+
+        #  Busca telefones existentes
+        fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
+
+        if request.method == "POST":
+            # --- Campos básicos ---
+            pessoa.nome = request.form.get("nome")
+            pessoa.sobrenome = request.form.get("sobrenome")
+
+            # --- Email ---
+            novo_email = request.form.get("email")
+            if novo_email and novo_email != usuario.email:
+                if User.query.filter_by(email=novo_email).first():
+                    flash("Este e-mail já está em uso.")
+                    return redirect(url_for("usuario"))
+                usuario.email = novo_email
+
+            # --- CPF ---
+            cpf_raw = request.form.get("cpf")
+            if cpf_raw:
+                pessoa.cpf = re.sub(r"\D", "", cpf_raw)
+
+            # --- Data de nascimento ---
+            data_nasc_raw = request.form.get("data_nasc")
+            if data_nasc_raw:
+                try:
+                    pessoa.data_nasc = datetime.strptime(data_nasc_raw, "%Y-%m-%d").date()
+                except ValueError:
+                    flash("Data inválida. Use o formato YYYY-MM-DD.")
+                    return redirect(url_for("usuario"))
+
+            # --- Telefones múltiplos ---
+            fones_form = [f.strip() for f in request.form.getlist("fones") if f.strip()]
+
+            # Atualiza os existentes ou remove se não estiver no formulário
+            for i, fone_obj in enumerate(fones):
+                if i < len(fones_form):
+                    fone_obj.fone = fones_form[i]
+                else:
+                    db.session.delete(fone_obj)
+
+            # Adiciona novos telefones se houver mais no formulário
+            if len(fones_form) > len(fones):
+                for j in range(len(fones), len(fones_form)):
+                    novo = Fone(fone=fones_form[j], pessoa_id=pessoa.id_pessoa)
+                    db.session.add(novo)
+
+            # --- Commit final ---
+            db.session.commit()
+            flash("Dados atualizados com sucesso!")
+
+            # Recarrega lista de telefones
+            fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
+
+        return render_template("usuario.html", user=usuario, fones=fones)
 
 
     return app
