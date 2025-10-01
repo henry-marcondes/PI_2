@@ -14,21 +14,6 @@ class Cardapio(db.Model):
 
     Ficha_Tecnica = db.relationship('FichaTecnica', back_populates='Cardapio_')
 
-
-class Endereco(db.Model):
-    __tablename__ = 'Endereco'
-
-    id_endereco = db.Column(db.Integer, primary_key=True)
-    rua_av = db.Column(db.String(100), nullable=False)
-    tipo = db.Column(db.Enum('RESINDENCIAL', 'COMERCIAL'), nullable=False)
-    numero = db.Column(db.String(10))
-    complemento = db.Column(db.String(20))
-    id_fornecedor = db.Column(db.Integer)
-    id_pessoa = db.Column(db.Integer)
-
-    Fornecedor = db.relationship('Fornecedor', back_populates='endereco')
-
-
 class Insumos(db.Model):
     __tablename__ = 'Insumos'
     __table_args__ = {'comment': 'Entrada dos insumos'}
@@ -42,7 +27,6 @@ class Insumos(db.Model):
     Ingredientes = db.relationship('Ingredientes', back_populates='Insumos_')
     Movimentacoes = db.relationship('Movimentacoes', back_populates='Insumos_')
     Compras = db.relationship('Compras', back_populates='Insumos_')
-
 
 class Pessoa(db.Model):
     __tablename__ = 'Pessoa'
@@ -58,7 +42,6 @@ class Pessoa(db.Model):
     data_cadastro = db.Column(db.TIMESTAMP, server_default=db.text('CURRENT_TIMESTAMP'))
     id_usuario = db.Column(db.Integer)
     
-
     # coleção de fones (um-para-muitos)
     fones = db.relationship('Fone', back_populates='pessoa', cascade="all, delete-orphan")
     User = db.relationship('User', back_populates='pessoa')
@@ -68,8 +51,7 @@ class Fone(db.Model):
     __tablename__ = 'Fone'
     __table_args__ = (
         db.ForeignKeyConstraint(['pessoa_id'], ['Pessoa.id_pessoa'], name='fk_fone_pessoa'),
-        db.Index('fk_fone_pessoa_idx', 'pessoa_id')
-    )
+        db.Index('fk_fone_pessoa_idx', 'pessoa_id'))
 
     id_fone = db.Column(db.Integer, primary_key=True)
     fone = db.Column(db.String(45), nullable=False)
@@ -79,6 +61,22 @@ class Fone(db.Model):
     pessoa = db.relationship('Pessoa', back_populates='fones')
     Fornecedor = db.relationship('Fornecedor', back_populates='fone')
 
+class Endereco(db.Model):
+    __tablename__ = 'Endereco'
+    __table_args__ = (
+        db.ForeignKeyConstraint(['id_pessoa'],['Pessoa.id_pessoa'], name='fk_endereco_pessoa_1'),
+        db.Index('fk_endereco_pessoa_1_idx', 'id_pessoa'))
+
+    id_endereco = db.Column(db.Integer, primary_key=True)
+    rua_av = db.Column(db.String(100), nullable=False)
+    tipo = db.Column(db.Enum('RESINDENCIAL', 'COMERCIAL'), nullable=False)
+    numero = db.Column(db.String(10))
+    complemento = db.Column(db.String(20))
+    id_fornecedor = db.Column(db.Integer)
+    id_pessoa = db.Column(db.Integer)
+
+    Fornecedor = db.relationship('Fornecedor', back_populates='endereco')
+    Pessoa = db.relationship("Pessoa",back_populates='enderecos')
 
 class Ingredientes(db.Model):
     __tablename__ = 'Ingredientes'

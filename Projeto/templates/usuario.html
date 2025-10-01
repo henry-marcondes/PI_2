@@ -1,40 +1,70 @@
-{% extends "base.html" %}
-{% block title %}Perfil{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Usuário</title>
+    <style>
+        .fone-field { margin-bottom: 5px; }
+        button.remove-fone { margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Editar Usuário</h1>
 
-{% block content %}
-<h2>Perfil</h2>
-<form method="POST">
-  Nome: <input type="text" name="nome" value="{{ user.pessoa.nome }}"><br>
-  Sobrenome: <input type="text" name="sobrenome" value="{{ user.pessoa.sobrenome }}"><br>
-  Email: <input type="email" name="email" value="{{ user.email }}"><br>
-  CPF: <input type="text" name="cpf" value="{{ user.pessoa.cpf }}"><br>
-  Data Nascimento: <input type="date" name="data_nasc" value="{{ user.pessoa.data_nasc }}"><br>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
 
-  <h3>Telefones</h3>
-  <div id="telefones">
-    {% for fone in user.pessoa.fones %}
-      <input type="text" name="fones" value="{{ fone.fone }}"><br>
-    {% endfor %}
-    {% if not user.pessoa.fones %}
-      <input type="text" name="fones" value=""><br>
-    {% endif %}
-  </div>
+    <form method="POST">
+        <label>Nome:</label>
+        <input type="text" name="nome" value="{{ user.pessoa.nome }}"><br><br>
 
-  <button type="submit">Salvar</button>
-</form>
+        <label>Sobrenome:</label>
+        <input type="text" name="sobrenome" value="{{ user.pessoa.sobrenome }}"><br><br>
 
-<!-- Botão para adicionar mais campos de telefone -->
-<button type="button" onclick="addFone()">Adicionar telefone</button>
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ user.email }}"><br><br>
 
-<script>
-function addFone() {
-    const div = document.getElementById('telefones');
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'fones';
-    input.placeholder = 'Novo telefone';
-    div.appendChild(input);
-    div.appendChild(document.createElement('br'));
-}
-</script>
-{% endblock %}
+        <label>CPF:</label>
+        <input type="text" name="cpf" value="{{ user.pessoa.cpf }}"><br><br>
+
+        <label>Data de nascimento:</label>
+        <input type="date" name="data_nasc" value="{{ user.pessoa.data_nasc }}"><br><br>
+
+        <label>Telefones:</label>
+        <div id="fones-container">
+            {% for fone in fones %}
+            <div class="fone-field">
+                <input type="text" name="fones" value="{{ fone.fone }}">
+                <button type="button" class="remove-fone" onclick="removeFone(this)">Remover</button>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" onclick="addFone()">Adicionar telefone</button><br><br>
+
+        <button type="submit">Salvar</button>
+    </form>
+
+    <script>
+        function addFone() {
+            const container = document.getElementById('fones-container');
+            const div = document.createElement('div');
+            div.className = 'fone-field';
+            div.innerHTML = '<input type="text" name="fones" value=""> ' +
+                            '<button type="button" class="remove-fone" onclick="removeFone(this)">Remover</button>';
+            container.appendChild(div);
+        }
+
+        function removeFone(btn) {
+            const div = btn.parentNode;
+            div.parentNode.removeChild(div);
+        }
+    </script>
+</body>
+</html>

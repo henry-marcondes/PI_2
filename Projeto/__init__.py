@@ -49,7 +49,6 @@ def create_app(test_config=None):
        
         produtos = Cardapio.query.all()
         return render_template("vitrine.html", produtos=produtos)
-        #return {"produtos": [(p.Nome, p.gramatura,p.imagem) for p in produtos]}
 
 
     # Cadastro de Usuário (não salva ainda, apenas flash)
