@@ -63,20 +63,15 @@ class Fone(db.Model):
 
 class Endereco(db.Model):
     __tablename__ = 'Endereco'
-    __table_args__ = (
-        db.ForeignKeyConstraint(['id_pessoa'],['Pessoa.id_pessoa'], name='fk_endereco_pessoa_1'),
-        db.Index('fk_endereco_pessoa_1_idx', 'id_pessoa'))
 
     id_endereco = db.Column(db.Integer, primary_key=True)
     rua_av = db.Column(db.String(100), nullable=False)
-    tipo = db.Column(db.Enum('RESINDENCIAL', 'COMERCIAL'), nullable=False)
+    tipo = db.Column(db.Enum('RESIDENCIAL', 'COMERCIAL'), nullable=False)
     numero = db.Column(db.String(10))
     complemento = db.Column(db.String(20))
     id_fornecedor = db.Column(db.Integer)
     id_pessoa = db.Column(db.Integer)
 
-    Fornecedor = db.relationship('Fornecedor', back_populates='endereco')
-    Pessoa = db.relationship("Pessoa",back_populates='enderecos')
 
 class Ingredientes(db.Model):
     __tablename__ = 'Ingredientes'

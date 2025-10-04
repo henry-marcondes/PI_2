@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}App{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+{% block extra_css %}{% endblock %}
 </head>
 <body>
   {% with messages = get_flashed_messages() %}

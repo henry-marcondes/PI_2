@@ -1,51 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Cadastro</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        form { max-width: 400px; margin: auto; padding: 20px; background: #f86868; border-radius: 8px; }
-        label { display: block; margin-top: 10px; }
-        input { width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
-        button { margin-top: 15px; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
-        button:hover { background: #45a049; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Cadastro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro.css') }}">
 </head>
 <body>
-    <h2 style="text-align:center;">Cadastro de Usuário</h2>
+  <div class="cadastro-container">
+    <h2>Cadastro de Usuário</h2>
+
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul>
-        {% for msg in messages %}
-          <li>{{ msg }}</li>
-        {% endfor %}
-        </ul>
+        <div class="mensagens">
+          {% for msg in messages %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
       {% endif %}
     {% endwith %}
+
     <form method="POST">
-        <label for="nome">PrimeiroNome:</label>
-        <input type="text" id="nome" name="nome" required>
+      <label for="nome">Primeiro Nome</label>
+      <input type="text" id="nome" name="nome" required>
 
-        <label for="sobrenome">Sobrenome:</label>
-        <input type="text" id="sobrenome" name="sobrenome" required>
+      <label for="sobrenome">Sobrenome</label>
+      <input type="text" id="sobrenome" name="sobrenome" required>
 
-        <label for="email">E-mail:</label>
-        <input type="email" id="email" name="email" required>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" required>
 
-        <label for="whatsapp">WhatsApp:</label>
-        <input type="text" id="whatsapp" name="whatsapp">
+      <label for="whatsapp">WhatsApp</label>
+      <input type="text" id="whatsapp" name="whatsapp">
 
-        <label for="user">Nome de Usuário:</label>
-        <input type="text" id="user" name="user">
+      <label for="user">Nome de Usuário</label>
+      <input type="text" id="user" name="user" required>
 
-        <label for="login">Senha mínimo 6 digitos e 1 caracteres especial:</label> 
-        <input type="password" id="login" name="login"required>
+      <label for="login">Senha (mín. 6 dígitos e 1 caractere especial)</label>
+      <input type="password" id="login" name="login" required>
 
-        <label for="confirm-login">Confirme a Senha:</label>
-        <input type="password" id="confirm-login" name="confirm-login" required>
+      <label for="confirm-login">Confirme a Senha</label>
+      <input type="password" id="confirm-login" name="confirm-login" required>
 
-        <button type="submit">Cadastrar</button>
+      <button type="submit">Cadastrar</button>
     </form>
+
+    <p class="login-link">
+      Já tem conta? <a href="{{ url_for('login') }}">Faça login</a>
+    </p>
+  </div>
 </body>
 </html>

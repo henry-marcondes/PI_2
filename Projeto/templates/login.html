@@ -1,82 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #f1a5a5; 
-            margin: 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-        }
-
-        .login-container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            width: 300px;
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background-color: #2d7631;
-        }
-
-        .mensagens {
-            margin-bottom: 10px;
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
+  <div class="login-container">
+    <h2>Login</h2>
 
-        <!-- Mostra mensagens de erro/sucesso -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <div class="mensagens">
-              {% for category, message in messages %}
-                <p class="{{ category }}">{{ message }}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mensagens">
+          {% for category, message in messages %}
+            <p class="{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-        <form method="POST" action="{{ url_for('login') }}">
-            <input type="text" name="user" placeholder="Usuário">
-            <input type="password" name="login" placeholder="Senha">
-            <button type="submit">Entrar</button>
-        </form>
-    </div>
+    <form method="POST" action="{{ url_for('login') }}">
+      <input type="text" name="user" placeholder="Usuário" required>
+      <input type="password" name="login" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+    </form>
+
+    <p class="cadastro-link">
+      Não tem conta? <a href="{{ url_for('cadastro') }}">Cadastre-se</a>
+    </p>
+  </div>
 </body>
 </html>
-

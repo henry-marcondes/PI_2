@@ -1,4 +1,4 @@
-#!/home/henry/PI_2/.venv/bin/python3
+#!/Users/thamirisadriano/Documents/univesp/PI_2/.venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys

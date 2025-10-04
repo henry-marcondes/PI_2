@@ -1,122 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Congelados</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            background-color: #f1a5a5; 
-        }
-
-        /* NAVBAR */
-        .navbar {
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .navbar h1 {
-            margin: 0;
-            font-size: 22px;
-        }
-
-        .navbar .links form {
-            display: inline;
-        }
-
-        .navbar button {
-            margin-left: 10px;
-            padding: 6px 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .navbar button:hover {
-            background-color: #2d7631;
-        }
-
-        /* Ajuste para não esconder o conteúdo atrás da navbar */
-        .content {
-            padding-top: 70px;
-        }
-
-        /* Produtos */
-        .produtos { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 20px; 
-            justify-content: center; 
-            margin: 20px;
-        }
-
-        .produto { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            width: 200px; 
-            box-shadow: 0 0 5px rgba(0,0,0,0.1); 
-        }
-
-        .produto img { 
-            width: 100%; 
-            height: 150px; 
-            object-fit: cover; 
-            border-radius: 5px; 
-        }
-
-        .produto h3 { margin: 10px 0 5px 0; }
-        .produto p { margin: 5px 0; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Vitrine</title>
+  <link rel="stylesheet" href="/static/css/vitrine.css?v=7" />
 </head>
 <body>
-
-    <!-- NAVBAR -->
-    <div class="navbar">
-        <h1>Congelados Sim Porque Não</h1>
-        <div class="links">
-            <form action="{{ url_for('login') }}">
-                <button type="submit">Login</button>
-            </form>
-            <form action="{{ url_for('cadastro') }}">
-                <button type="submit">Cadastrar-se</button>
-            </form>
-        </div>
+  <header class="navbar">
+    <div class="wrap">
+      <h1>Congelados Sim Porque Não</h1>
     </div>
+  </header>
 
-    <!-- CONTEÚDO -->
-    <div class="content">
-        <div class="produtos">
-            {% for produto in produtos %}
-            <div class="produto">
-                {% if produto.imagem %}
-                    <img src="{{ url_for('static', filename='imagens/'+ produto.imagem) }}" alt="{{ produto.imagem }}">
-                {% else %}
-                    <img src="{{ url_for('static', filename='imagens/embalagens.jpg') }}" alt="{{ produto.Nome }}">
-                {% endif %}
+  <main class="wrap content">
+    <h2>Nossos Produtos</h2>
 
-                <h3>{{ produto.Nome }}</h3>
-                <p>{{ produto.gramatura }}</p>
-                {% if produto.Preco %}
-                    <p>Preço: R$ {{ "%.2f"|format(produto.Preco) }}</p>
-                {% endif %}
-            </div>
-            {% endfor %}
+    <section class="grid">
+      <article class="card">
+        <img src="/static/imagens/lasanha.jpg" alt="Lasanha de Frango" />
+        <div class="info">
+          <h3>Lasanha de Frango</h3>
+          <p class="desc">500 g · forno 25 min</p>
+          <p class="price">R$ 29,90</p>
         </div>
-    </div>
+      </article>
 
+      <article class="card">
+        <img src="/static/imagens/empadao_frango.jpg" alt="Empadão de Frango" />
+        <div class="info">
+          <h3>Empadão de Frango</h3>
+          <p class="desc">120 g · forno 15 min</p>
+          <p class="price">R$ 12,00</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <img src="/static/imagens/choco_morango_250.jpg" alt="Bolo de Morango" />
+        <div class="info">
+          <h3>Bolo de Morango</h3>
+          <p class="desc">250 g · forno 10 min</p>
+          <p class="price">R$ 18,50</p>
+        </div>
+      </article>
+    </section>
+  </main>
 </body>
 </html>
-

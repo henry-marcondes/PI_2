@@ -1,176 +1,151 @@
-##__init__.py
 from datetime import datetime
-import os
-from flask import Flask, render_template, request, flash, redirect, url_for 
+import os, re
+from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from flask import session
-import re
 
-app = Flask(__name__)
-db = SQLAlchemy() 
+db = SQLAlchemy()
 
 def create_app(test_config=None):
-    # cria e configura o app
-    app = Flask(__name__,
-                template_folder=os.path.join(os.path.dirname(__file__),"templates"),
-                instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI='mysql+pymysql://henry:55631376@127.0.0.1/lili',
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(os.path.dirname(__file__), "templates"),
+        static_folder=os.path.join(os.path.dirname(__file__), "static"),
+        static_url_path="/static",
+        instance_relative_config=True,
     )
-    
+
+    app.config.from_mapping(
+        SECRET_KEY="dev",
+        SQLALCHEMY_DATABASE_URI="sqlite:///app.db",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    )
+
     if test_config is None:
-        # abre a instancia config, se este não existir, quando não exixtir
-        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_pyfile("config.py", silent=True)
     else:
-        # abre o test config se passado o argumento
         app.config.from_mapping(test_config)
 
-    # garantir a instancia se a pasta existir
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
 
-    # inicializa banco
     db.init_app(app)
-    # import routes e modelos
+
     with app.app_context():
-        from . import models
+        from .models import Cardapio, Pessoa, User, Fone
+        db.create_all()
+        if Cardapio.query.count() == 0:
+            demo = Cardapio(
+                Nome="Lasanha de Frango",
+                gramatura=500,
+                tempo_forno="25 min",
+                validade="90 dias",
+                imagem="lasanha.jpg",
+            )
+            db.session.add(demo)
+            db.session.commit()
 
-    from .models import Cardapio, Pessoa, User, Fone
-        
-   
+    @app.route("/")
+    def index():
+        return redirect(url_for("login"))
 
-    # Página Vitrine
     @app.route("/vitrine")
     def vitrine():
-       
+        from .models import Cardapio
         produtos = Cardapio.query.all()
         return render_template("vitrine.html", produtos=produtos)
 
-
-    # Cadastro de Usuário (não salva ainda, apenas flash)
     @app.route("/cadastro", methods=["GET", "POST"])
     def cadastro():
+        from .models import Pessoa, User, Fone
         if request.method == "POST":
-            nome = request.form.get("nome")            # Tabela: Pessoa[1]: nome
-            sobrenome = request.form.get("sobrenome")  # Tabela: Pessoa[2]: sobrenome
-            email = request.form.get("email")          # Tabela: User[2]: email
-            whatsApp = request.form.get("whatsapp")    # Tabela: Fone[1]: fone
-            user = request.form.get("user")            # Tabela: User[1]: username
-            login = request.form.get("login")          # Tabela: User[3]: password
-            confirm_login = request.form.get("confirm-login")
+            nome = request.form.get("nome")
+            sobrenome = request.form.get("sobrenome")
+            email = request.form.get("email")
+            whatsApp = request.form.get("whatsapp")
+            username = request.form.get("user")
+            senha = request.form.get("login")
+            confirm = request.form.get("confirm-login")
 
             if not nome or not whatsApp:
-                flash("Preencha Nome e whatsApp")
-            elif login != confirm_login:
-                flash("Senhas diferentes")
+                flash("Preencha Nome e WhatsApp", "error")
+            elif senha != confirm:
+                flash("Senhas diferentes", "error")
             else:
-                # Verifique se o 'username' já existe no banco de dados
-                existing_user = User.query.filter_by(username=user).first()
+                existing_user = User.query.filter_by(username=username).first()
                 if existing_user:
                     flash("Nome de usuário já existe", "error")
                 else:
-                    # Cria Pessoa
-                    nova_pessoa = Pessoa(nome=nome,sobrenome=sobrenome)                  
-                    db.session.add(nova_pessoa)
-                    db.session.flush()  # para pegar o id da pessoa antes do commit
-
-                    # Cria User
-                    novo_user = User(username=user, email=email,password=login,
-                                     pessoa_id=nova_pessoa.id_pessoa)
-                    db.session.add(novo_user)
-                    db.session.flush() # pegar o id do usuário
-
-                   # Atualiza Pessoa.id_usuario com o id do User recém criado
-                    nova_pessoa.id_usuario = novo_user.idUser
-                    db.session.add(nova_pessoa)  # marca como "dirty" para update 
-
-                    # Cria Fone
-                    novo_fone = Fone(fone=whatsApp,pessoa_id=nova_pessoa.id_pessoa)
-                    db.session.add(novo_fone)
-
-                    # Commit no banco
+                    pessoa = Pessoa(nome=nome, sobrenome=sobrenome)
+                    db.session.add(pessoa)
+                    db.session.flush()
+                    user = User(username=username, email=email, password=senha,
+                                pessoa_id=pessoa.id_pessoa)
+                    db.session.add(user)
+                    db.session.flush()
+                    pessoa.id_usuario = user.idUser
+                    db.session.add(pessoa)
+                    fone = Fone(fone=whatsApp, pessoa_id=pessoa.id_pessoa)
+                    db.session.add(fone)
                     db.session.commit()
-
-                    # Redireciona para a vitrine
-                flash(f"Usuário {nome} cadastrado com sucesso!", "success")
-                return redirect(url_for("vitrine"))
-
+                    flash(f"Usuário {nome} cadastrado com sucesso!", "success")
+                    return redirect(url_for("vitrine"))
         return render_template("cadastro.html")
 
-
-    
     @app.route("/cardapio")
     def cardapio():
-       
-        from Projeto.models import Cardapio
+        from .models import Cardapio
         itens = Cardapio.query.all()
         return "<br>".join([f"{c.id_cardapio} - {c.Nome} - {c.gramatura}g" for c in itens])
-    
+
     @app.route("/login", methods=["GET", "POST"])
     def login():
+        from .models import User
         if request.method == "POST":
-            user = request.form.get("user")
-            #login_senha = request.form.get("password")
-            login_senha = request.form.get("login")  # melhor renomear para não confundir
-
-            if not user or not login_senha:
+            username = request.form.get("user")
+            senha = request.form.get("login")
+            if not username or not senha:
                 flash("Preencha Nome de Usuário e Senha", "error")
             else:
-                usuario = User.query.filter_by(username=user).first()
-                if usuario and User.query.filter_by(password = login_senha ):
+                usuario = User.query.filter_by(username=username).first()
+                if usuario and (usuario.password == senha):
                     session["user_id"] = usuario.idUser
                     session["pessoa_id"] = usuario.pessoa_id
                     flash(f"Usuário {usuario.username} logado com sucesso!", "success")
-                    return redirect(url_for("usuario", usiario=usuario.username))  # redireciona para a página do usuário
+                    return redirect(url_for("vitrine"))
                 else:
                     flash("Usuário ou Senha inválidos", "error")
-
         return render_template("login.html")
-    
+
     @app.route("/usuario", methods=["GET", "POST"])
     def usuario():
+        from .models import User, Pessoa, Fone
         user_id = session.get("user_id")
         if not user_id:
             flash("Usuário não autenticado.")
             return redirect(url_for("login"))
-
-        #  Busca usuário e pessoa
         usuario = User.query.get(user_id)
         if not usuario:
             flash("Usuário não encontrado.")
             return redirect(url_for("login"))
-
-        pessoa = Pessoa.query.get(usuario.pessoa_id)  # ou usuario.pessoa se relação existir
+        pessoa = Pessoa.query.get(usuario.pessoa_id)
         if not pessoa:
             flash("Pessoa vinculada ao usuário não encontrada.")
             return redirect(url_for("login"))
-
-        #  Busca telefones existentes
         fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
-
         if request.method == "POST":
-            # --- Campos básicos ---
             pessoa.nome = request.form.get("nome")
             pessoa.sobrenome = request.form.get("sobrenome")
-
-            # --- Email ---
             novo_email = request.form.get("email")
             if novo_email and novo_email != usuario.email:
                 if User.query.filter_by(email=novo_email).first():
                     flash("Este e-mail já está em uso.")
                     return redirect(url_for("usuario"))
                 usuario.email = novo_email
-
-            # --- CPF ---
             cpf_raw = request.form.get("cpf")
             if cpf_raw:
                 pessoa.cpf = re.sub(r"\D", "", cpf_raw)
-
-            # --- Data de nascimento ---
             data_nasc_raw = request.form.get("data_nasc")
             if data_nasc_raw:
                 try:
@@ -178,31 +153,18 @@ def create_app(test_config=None):
                 except ValueError:
                     flash("Data inválida. Use o formato YYYY-MM-DD.")
                     return redirect(url_for("usuario"))
-
-            # --- Telefones múltiplos ---
             fones_form = [f.strip() for f in request.form.getlist("fones") if f.strip()]
-
-            # Atualiza os existentes ou remove se não estiver no formulário
-            for i, fone_obj in enumerate(fones):
+            for i, fobj in enumerate(fones):
                 if i < len(fones_form):
-                    fone_obj.fone = fones_form[i]
+                    fobj.fone = fones_form[i]
                 else:
-                    db.session.delete(fone_obj)
-
-            # Adiciona novos telefones se houver mais no formulário
+                    db.session.delete(fobj)
             if len(fones_form) > len(fones):
                 for j in range(len(fones), len(fones_form)):
-                    novo = Fone(fone=fones_form[j], pessoa_id=pessoa.id_pessoa)
-                    db.session.add(novo)
-
-            # --- Commit final ---
+                    db.session.add(Fone(fone=fones_form[j], pessoa_id=pessoa.id_pessoa))
             db.session.commit()
             flash("Dados atualizados com sucesso!")
-
-            # Recarrega lista de telefones
             fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
-
         return render_template("usuario.html", user=usuario, fones=fones)
-
 
     return app

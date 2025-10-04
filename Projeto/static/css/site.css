@@ -1,0 +1,32 @@
+/* Base */
+:root{--bg:#0c1015;--panel:#13202c;--text:#e9eef5;--muted:#9fb0c2;--primary:#4ea8de;--border:#223042}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55;display:flex;flex-direction:column}
+.container{max-width:1100px;margin:0 auto;padding:20px;flex:1}
+
+/* Header/Nav */
+.header{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:20px}
+.brand a{color:var(--primary);font-weight:700;text-decoration:none}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:8px 14px;border-radius:10px;background:var(--primary);color:#fff;text-decoration:none;border:1px solid transparent;transition:.2s}
+.btn:hover{filter:brightness(0.95)}
+.btn.ghost{background:transparent;color:var(--primary);border-color:var(--primary)}
+.btn.ghost:hover{background:#0f1a25}
+
+/* Cards + grid básicos */
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card .content{padding:14px}
+
+/* Forms básicos */
+form{display:flex;flex-direction:column;gap:10px}
+input,select,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#0f1a25;color:var(--text)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+
+/* Flash */
+.flash{background:#0f1a25;border:1px solid var(--border);color:#cfe8ff;padding:10px 12px;border-radius:10px;margin:8px 0}
+.flash.error{border-color:#5b2b2b;color:#ffd1d1;background:#1a1111}
+.flash.success{border-color:#1f5b46;color:#d8ffee;background:#101a17}
+
+/* Footer */
+.footer{text-align:center;color:var(--muted);border-top:1px solid var(--border);padding:14px 0;margin-top:24px}
