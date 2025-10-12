@@ -1,33 +1,5 @@
 from . import db  # importa a instância de SQLAlchemy criada no __init__.py
 
-
-class Cardapio(db.Model):
-    __tablename__ = 'Cardapio'
-    __table_args__ = {'comment': 'Destina-se aos Itens de Produção e Vendas'}
-
-    id_cardapio = db.Column(db.Integer, primary_key=True)
-    Nome = db.Column(db.String(100), nullable=False, comment='Nome do Produto')
-    gramatura = db.Column(db.Integer, nullable=False, comment='Categorias: 250g, 500g, 1000g')
-    tempo_forno = db.Column(db.String(45), nullable=False)
-    validade = db.Column(db.String(100), nullable=False)
-    imagem = db.Column(db.String(100))
-
-    Ficha_Tecnica = db.relationship('FichaTecnica', back_populates='Cardapio_')
-
-class Insumos(db.Model):
-    __tablename__ = 'Insumos'
-    __table_args__ = {'comment': 'Entrada dos insumos'}
-
-    idInsumos = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(45), nullable=False)
-    categoria = db.Column(db.String(15), nullable=False)
-    menor_parte = db.Column(db.Float)
-    valor_medio = db.Column(db.Float)
-
-    Ingredientes = db.relationship('Ingredientes', back_populates='Insumos_')
-    Movimentacoes = db.relationship('Movimentacoes', back_populates='Insumos_')
-    Compras = db.relationship('Compras', back_populates='Insumos_')
-
 class Pessoa(db.Model):
     __tablename__ = 'Pessoa'
     __table_args__ = (
@@ -42,10 +14,11 @@ class Pessoa(db.Model):
     data_cadastro = db.Column(db.TIMESTAMP, server_default=db.text('CURRENT_TIMESTAMP'))
     id_usuario = db.Column(db.Integer)
     
+    
     # coleção de fones (um-para-muitos)
     fones = db.relationship('Fone', back_populates='pessoa', cascade="all, delete-orphan")
     User = db.relationship('User', back_populates='pessoa')
-
+    endereco = db.relationship('Endereco',back_populates='pessoa', cascade="all, delete-orphan")
 
 class Fone(db.Model):
     __tablename__ = 'Fone'
@@ -76,7 +49,7 @@ class Endereco(db.Model):
     id_pessoa = db.Column(db.Integer)
 
     Fornecedor = db.relationship('Fornecedor', back_populates='endereco')
-    Pessoa = db.relationship("Pessoa",back_populates='enderecos')
+    pessoa = db.relationship("Pessoa",back_populates='endereco')
 
 class Ingredientes(db.Model):
     __tablename__ = 'Ingredientes'
@@ -172,6 +145,32 @@ class FichaTecnica(db.Model):
     Cardapio_ = db.relationship('Cardapio', back_populates='Ficha_Tecnica')
     Ingredientes_ = db.relationship('Ingredientes', back_populates='Ficha_Tecnica')
 
+class Insumos(db.Model):
+    __tablename__ = 'Insumos'
+    __table_args__ = {'comment': 'Entrada dos insumos'}
+
+    idInsumos = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(45), nullable=False)
+    categoria = db.Column(db.String(15), nullable=False)
+    menor_parte = db.Column(db.Float)
+    valor_medio = db.Column(db.Float)
+
+    Ingredientes = db.relationship('Ingredientes', back_populates='Insumos_')
+    Movimentacoes = db.relationship('Movimentacoes', back_populates='Insumos_')
+    Compras = db.relationship('Compras', back_populates='Insumos_')
+
+class Cardapio(db.Model):
+    __tablename__ = 'Cardapio'
+    __table_args__ = {'comment': 'Destina-se aos Itens de Produção e Vendas'}
+
+    id_cardapio = db.Column(db.Integer, primary_key=True)
+    Nome = db.Column(db.String(100), nullable=False, comment='Nome do Produto')
+    gramatura = db.Column(db.Integer, nullable=False, comment='Categorias: 250g, 500g, 1000g')
+    tempo_forno = db.Column(db.String(45), nullable=False)
+    validade = db.Column(db.String(100), nullable=False)
+    imagem = db.Column(db.String(100))
+
+    Ficha_Tecnica = db.relationship('FichaTecnica', back_populates='Cardapio_')
 
 class Fornecedor(db.Model):
     __tablename__ = 'Fornecedor'

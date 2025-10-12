@@ -46,8 +46,19 @@
             </div>
             {% endfor %}
         </div>
-        <button type="button" onclick="addFone()">Adicionar telefone</button><br><br>
 
+        <label>Endereços:</label>
+        <div id="enderecos-container">
+            {% for end in enderecos %}
+            <div class="endereco-field">
+                <input type="text" name="rua_av" value="{{ end.rua_av }}">
+                <button type="button" class="remove-endereco" onclick="removeEndereco(this)">Remover</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" onclick="addFone()">Adicionar telefone</button><br><br>
+        <button type="button" onclick="addEndereco()">Adicionar endereço</button><br><br>
         <button type="submit">Salvar</button>
     </form>
 
@@ -62,6 +73,22 @@
         }
 
         function removeFone(btn) {
+            const div = btn.parentNode;
+            div.parentNode.removeChild(div);
+        }
+    </script>
+
+    <script>
+        function addEndereco() {
+            const container = document.getElementById('enderecos-container');
+            const div = document.createElement('div');
+            div.className = 'endereco-field';
+            div.innerHTML = '<input type="text" name="rua_av" value=""> ' +
+                            '<button type="button" class="remove-endereco" onclick="removeEndereco(this)">Remover</button>';
+            container.appendChild(div);
+        }
+
+        function removeEndereco(btn) {
             const div = btn.parentNode;
             div.parentNode.removeChild(div);
         }

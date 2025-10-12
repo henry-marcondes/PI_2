@@ -39,7 +39,7 @@ def create_app(test_config=None):
     with app.app_context():
         from . import models
 
-    from .models import Cardapio, Pessoa, User, Fone
+    from .models import Cardapio, Pessoa, User, Fone, Endereco
         
    
 
@@ -151,6 +151,8 @@ def create_app(test_config=None):
 
         #  Busca telefones existentes
         fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
+        # busca por endereços existentes
+        enderecos = Endereco.query.filter_by(id_endereco=pessoa.id_pessoa).order_by(Endereco.id_endereco).all()
 
         if request.method == "POST":
             # --- Campos básicos ---
@@ -180,7 +182,7 @@ def create_app(test_config=None):
                     return redirect(url_for("usuario"))
 
             # --- Telefones múltiplos ---
-            fones_form = [f.strip() for f in request.form.getlist("fones") if f.strip()]
+            fones_form = [f.strip() for f in request.form.getlist("fones") if f.strip()]           
 
             # Atualiza os existentes ou remove se não estiver no formulário
             for i, fone_obj in enumerate(fones):
@@ -194,15 +196,31 @@ def create_app(test_config=None):
                 for j in range(len(fones), len(fones_form)):
                     novo = Fone(fone=fones_form[j], pessoa_id=pessoa.id_pessoa)
                     db.session.add(novo)
+ 
+            # Busca no Banco endereços existentes
+            ruas_form = [r.strip() for r in request.form.getlist("rua_av") if r.strip()]
+            
+            for j, end_obj in enumerate(enderecos):
+                if j < len(ruas_form):
+                    end_obj.rua_av = ruas_form[j]
+                else:
+                    db.session.delete(end_obj)
+
+            if len(ruas_form) > len(enderecos):
+                for i in range(len(enderecos), len(ruas_form)):
+                    inclui_endereco = Endereco(rua_av=ruas_form[i], id_pessoa = pessoa.id_pessoa, tipo="RESIDENCIAL")
+                    db.session.add(inclui_endereco) 
 
             # --- Commit final ---
             db.session.commit()
             flash("Dados atualizados com sucesso!")
 
-            # Recarrega lista de telefones
+             # Recarrega lista de telefones
             fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
+            enderecos = Endereco.query.filter_by(id_endereco=pessoa.id_pessoa).order_by(Endereco.id_endereco).all()
+            
 
-        return render_template("usuario.html", user=usuario, fones=fones)
+        return render_template("usuario.html", user=usuario, fones=fones, enderecos=enderecos)
 
 
     return app

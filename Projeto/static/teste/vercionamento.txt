@@ -101,3 +101,34 @@ Use este comando para verificar se um arquivo está sendo ignorado:
 
 git check-ignore -v nome_do_arquivo
 
+9. Para atualizar seu projeto local com as últimas alterações do repositório 
+remoto, você usa o git pull.
+Aqui está o passo a passo básico:
+
+Abra o terminal e vá até a pasta do seu projeto:
+
+cd /caminho/do/seu/projeto
+
+
+Verifique em qual branch você está:
+
+git branch
+
+
+(O nome com * é a branch atual, geralmente main ou master.)
+
+Puxe as alterações do repositório remoto:
+
+git pull origin main
+
+(ou substitua main pelo nome da branch que você está usando)
+
+Algumas situações que podem acontecer:
+
+Se você não tem modificações locais → o pull apenas baixa e aplica as mudanças.
+
+Se você tem alterações locais não commitadas → pode dar conflito. Nesse caso, 
+ou você faz git stash antes, ou commita suas mudanças e depois dá o pull.
+
+Se der conflito → o Git vai pedir para você resolver manualmente os arquivos 
+conflitantes antes de continuar.
