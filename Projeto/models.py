@@ -42,7 +42,7 @@ class Endereco(db.Model):
 
     id_endereco = db.Column(db.Integer, primary_key=True)
     rua_av = db.Column(db.String(100), nullable=False)
-    tipo = db.Column(db.Enum('RESINDENCIAL', 'COMERCIAL'), nullable=False)
+    tipo = db.Column(db.Enum('RESIDENCIAL', 'COMERCIAL'), nullable=False)
     numero = db.Column(db.String(10))
     complemento = db.Column(db.String(20))
     id_fornecedor = db.Column(db.Integer)

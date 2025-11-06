@@ -199,17 +199,27 @@ def create_app(test_config=None):
  
             # Busca no Banco endereços existentes
             ruas_form = [r.strip() for r in request.form.getlist("rua_av") if r.strip()]
-            
+            numeros_form = [n.strip() for n in request.form.getlist("numero") if n.strip()]
+            complementos_form = [c.strip() for c in request.form.getlist("complemento") if c.strip()]
+
             for j, end_obj in enumerate(enderecos):
                 if j < len(ruas_form):
                     end_obj.rua_av = ruas_form[j]
+                    end_obj.numero = numeros_form[j] if j < len(numeros_form) else None
+                    end_obj.complemento = complementos_form[j] if j < len(complementos_form) else None
                 else:
                     db.session.delete(end_obj)
 
             if len(ruas_form) > len(enderecos):
                 for i in range(len(enderecos), len(ruas_form)):
-                    inclui_endereco = Endereco(rua_av=ruas_form[i], id_pessoa = pessoa.id_pessoa, tipo="RESIDENCIAL")
-                    db.session.add(inclui_endereco) 
+                    inclui_endereco = Endereco(
+                        rua_av=ruas_form[i],
+                        numero=numeros_form[i] if i < len(numeros_form) else None,
+                        complemento=complementos_form[i] if i < len(complementos_form) else None,
+                        id_pessoa=pessoa.id_pessoa,
+                        tipo="RESIDENCIAL"
+                    )
+                    db.session.add(inclui_endereco)
 
             # --- Commit final ---
             db.session.commit()
@@ -217,7 +227,8 @@ def create_app(test_config=None):
 
              # Recarrega lista de telefones
             fones = Fone.query.filter_by(pessoa_id=pessoa.id_pessoa).order_by(Fone.id_fone).all()
-            enderecos = Endereco.query.filter_by(id_endereco=pessoa.id_pessoa).order_by(Endereco.id_endereco).all()
+            enderecos = Endereco.query.filter_by(id_pessoa=pessoa.id_pessoa).order_by(Endereco.id_endereco).all()
+
             
 
         return render_template("usuario.html", user=usuario, fones=fones, enderecos=enderecos)
