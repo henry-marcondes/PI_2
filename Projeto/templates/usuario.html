@@ -2,101 +2,228 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Usuário</title>
+    <title>Área do Usuário</title>
     <style>
-        .fone-field { margin-bottom: 5px; }
-        button.remove-fone { margin-left: 5px; }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #d9e4ec);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #eaafbf;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 30px 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        form label {
+            display: block;
+            font-weight: 600;
+            margin-top: 15px;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .fone-field,
+        .endereco-field {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            align-items: center;
+        }
+
+        button {
+            background-color: #0078d7;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #005fa3;
+        }
+
+        button.remove-fone,
+        button.remove-endereco {
+            background-color: #d9534f;
+        }
+
+        button.remove-fone:hover,
+        button.remove-endereco:hover {
+            background-color: #c9302c;
+        }
+
+        .add-btn {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            background-color: #218838;
+        }
+
+        .save-btn {
+            display: block;
+            width: 100%;
+            margin-top: 25px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background-color: #e2c3e7;
+            border-left: 4px solid #3c763d;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-top: 20px;
+        }
+
+        .section h2 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            color: #0078d7;
+        }
+
+        @media (max-width: 600px) {
+            .fone-field,
+            .endereco-field {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Editar Usuário</h1>
+    <div class="container">
+        <h1>Editar Usuário</h1>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul>
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
 
-    <form method="POST">
-        <label>Nome:</label>
-        <input type="text" name="nome" value="{{ user.pessoa.nome }}"><br><br>
+        <form method="POST">
+            <label>Nome:</label>
+            <input type="text" name="nome" value="{{ user.pessoa.nome }}">
 
-        <label>Sobrenome:</label>
-        <input type="text" name="sobrenome" value="{{ user.pessoa.sobrenome }}"><br><br>
+            <label>Sobrenome:</label>
+            <input type="text" name="sobrenome" value="{{ user.pessoa.sobrenome }}">
 
-        <label>Email:</label>
-        <input type="email" name="email" value="{{ user.email }}"><br><br>
+            <label>Email:</label>
+            <input type="email" name="email" value="{{ user.email }}">
 
-        <label>CPF:</label>
-        <input type="text" name="cpf" value="{{ user.pessoa.cpf }}"><br><br>
+            <label>CPF:</label>
+            <input type="text" name="cpf" value="{{ user.pessoa.cpf }}">
 
-        <label>Data de nascimento:</label>
-        <input type="date" name="data_nasc" value="{{ user.pessoa.data_nasc }}"><br><br>
+            <label>Data de nascimento:</label>
+            <input type="date" name="data_nasc" value="{{ user.pessoa.data_nasc }}">
 
-        <label>Telefones:</label>
-        <div id="fones-container">
-            {% for fone in fones %}
-            <div class="fone-field">
-                <input type="text" name="fones" value="{{ fone.fone }}">
-                <button type="button" class="remove-fone" onclick="removeFone(this)">Remover</button>
+            <div class="section">
+                <h2>Telefones</h2>
+                <div id="fones-container">
+                    {% for fone in fones %}
+                    <div class="fone-field">
+                        <input type="text" name="fones" value="{{ fone.fone }}">
+                        <button type="button" class="remove-fone" onclick="removeFone(this)">Remover</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="add-btn" onclick="addFone()">+ Adicionar telefone</button>
             </div>
-            {% endfor %}
-        </div>
 
-        <button type="button" onclick="addFone()">Adicionar telefone</button><br><br>
-
-        <label>Endereços:</label>
-        <div id="enderecos-container">
-            {% for end in enderecos %}
-            <div class="endereco-field">
-                <input type="text" name="rua_av" value="{{ end.rua_av }}">
-                <input type="text" name="numero" value="{{end.numero}}">
-                <input type="text" name="complemento" value="{{ end.complemento }}">
-                <button type="button" class="remove-endereco" onclick="removeEndereco(this)">Remover</button>
+            <div class="section">
+                <h2>Endereços</h2>
+                <div id="enderecos-container">
+                    {% for end in enderecos %}
+                    <div class="endereco-field">
+                        <input type="text" name="rua_av" value="{{ end.rua_av }}" placeholder="Rua/Avenida">
+                        <input type="text" name="numero" value="{{ end.numero }}" placeholder="Número">
+                        <input type="text" name="complemento" value="{{ end.complemento }}" placeholder="Complemento">
+                        <button type="button" class="remove-endereco" onclick="removeEndereco(this)">Remover</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="add-btn" onclick="addEndereco()">+ Adicionar endereço</button>
             </div>
-            {% endfor %}
-        </div>
 
-        
-        <button type="button" onclick="addEndereco()">Adicionar endereço</button><br><br>
-        <button type="submit">Salvar</button>
-    </form>
+            <button type="submit" class="save-btn">Salvar Alterações</button>
+        </form>
+    </div>
 
     <script>
         function addFone() {
             const container = document.getElementById('fones-container');
             const div = document.createElement('div');
             div.className = 'fone-field';
-            div.innerHTML = '<input type="text" name="fones" value=""> ' +
-                            '<button type="button" class="remove-fone" onclick="removeFone(this)">Remover</button>';
+            div.innerHTML = `
+                <input type="text" name="fones" placeholder="Novo telefone">
+                <button type="button" class="remove-fone" onclick="removeFone(this)">Remover</button>
+            `;
             container.appendChild(div);
         }
 
         function removeFone(btn) {
-            const div = btn.parentNode;
-            div.parentNode.removeChild(div);
+            btn.parentElement.remove();
         }
-    </script>
 
-    <script>
         function addEndereco() {
             const container = document.getElementById('enderecos-container');
             const div = document.createElement('div');
             div.className = 'endereco-field';
-            div.innerHTML = '<input type="text" name="rua_av" value=""> ' +
-                            '<input type="text" name="numero" value="">' +
-                            '<input type="text" name="complemento" value="">' +
-                            '<button type="button" class="remove-endereco" onclick="removeEndereco(this)">Remover</button>';
+            div.innerHTML = `
+                <input type="text" name="rua_av" placeholder="Rua/Avenida">
+                <input type="text" name="numero" placeholder="Número">
+                <input type="text" name="complemento" placeholder="Complemento">
+                <button type="button" class="remove-endereco" onclick="removeEndereco(this)">Remover</button>
+            `;
             container.appendChild(div);
         }
 
         function removeEndereco(btn) {
-            const div = btn.parentNode;
-            div.parentNode.removeChild(div);
+            btn.parentElement.remove();
         }
     </script>
 </body>
